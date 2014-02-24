@@ -1,0 +1,38 @@
+{
+  "name": "braintracker",
+  "version": "0.0.1",
+  "homepage": "https://github.com/jetpad/BrainTracker",
+  "authors": [
+    "David Smith <dsmith@jetpad.com>"
+  ],
+  "description": "Adds a browser based user interface to Seth Roberts' (http://blog.sethroberts.net) reaction time tracking software.",
+  "keywords": [
+    "reaction",
+    "time",
+    "tracking"
+  ],
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "app/bower_components",
+    "test"
+  ],
+  "dependencies": {
+    "json3": "~3.2.6",
+    "es5-shim": "~2.1.0",
+    "angular": "~1.2.13",
+    "jquery": "~2.1.0",
+    "font-awesome": "~4.0.3",
+    "angular-bootstrap": "~0.10.0",
+    "bootstrap": "~3.1.1",
+    "angular-touch": "~1.2.13",
+    "angular-route": "~1.2.13",
+    "underscore": "~1.6.0"
+  },
+  "devDependencies": {
+    "angular-mocks": "1.2.6",
+    "angular-scenario": "1.2.6"
+  }
+}

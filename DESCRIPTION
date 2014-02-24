@@ -1,0 +1,10 @@
+Package: braintracker
+Type: Package
+Title: Brain Tracker App
+Version: 0.0.1
+Date: 2014-02-05
+Author: David Smith
+Maintainer: David Smith <dsmith@jetpad.com>
+Description: This package is an OpenCPU app that tracks self tested reaction time.
+License: Apache2
+LazyData: true
