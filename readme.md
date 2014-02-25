@@ -34,7 +34,7 @@ This adds a browser based user interface to Seth Roberts' (http://blog.sethrober
 
 
 ----------------------------------
-Problems with the installation? Then try running:
+### Problems with the installation? then try typing these commands into the R console:
 
     install.packages("devtools")
     install.packages("opencpu")

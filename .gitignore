@@ -1,5 +1,6 @@
 node_modules
 app
+.DS_Store
 .tmp
 .sass-cache
 app/bower_components
