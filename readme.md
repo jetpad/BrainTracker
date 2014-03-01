@@ -43,3 +43,17 @@ This adds a browser based user interface to Seth Roberts' (http://blog.sethrober
     library(opencpu)
 
 
+----------------------------------
+### For developers working this package
+
+    Open the braintracker.Rproj file.
+    
+    After making changes to the R source, do this to refresh the code in R
+
+      remove.packages("braintracker")
+      install.packages(".", repos = NULL, type="source")
+      library(opencpu)
+      braintracker::startup()
+
+
+

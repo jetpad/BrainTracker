@@ -1,4 +1,50 @@
-#TODO 
+#TODO and Misc. Notes
+
+- Immediate Steps
+	- Version the current app on github
+	- Remove opencpu
+	- Add support to load/save data file from dropbox
+	- Create an "import" in R to get the raw data into Seth's program
+- Following Steps
+	- Integrate the gauss javascript library
+	- Integrate NVD3.js and D3.js to do the charting 
+	- Create a grunt action that'll publish the site to a shared dropbox folder(?)
+
+- Add an app version number to each trial recorded to help watch for changes caused by the app and not diet/lifestyle
+
+- Package addons for Seth's R script into a library that can be loaded with install_github()
+	- Import/export
+	- Put things (as much as possible) onto a single menu
+		- Q
+		- Test
+		- Warmup
+		- Export
+		- Import
+		- Graphs
+
+- Automate starting and linking R server to the development environment
+	- Some sort of grunt command to start up the server? 
+	- include special url in javascript (development) environment
+
+- Switch to using a different statistics package
+	- Gauss for javascript?
+	- D3.js although it really is more of a graphing package. 
+	- NVD3.js for charts
+
+- opencpu session id
+	- Save the session after the first call
+	- Need to pass the session id on every subsequent call so that it can get to the responseTrials data
+	- Check for "Hey, thats not a valid session id" error and that'll mean time to reload responseTrials data
+
+- Find a way to generate man pages from markdown
+
+- How to get the path to the rdata file? 
+	- User enters path directly
+	- Access via Dropbox or Google Drive
+	- User drags and drops the local file onto a drop area
+
+- Make sure I can get dates to and from R from javascript 
+https://www.opencpu.org/posts/jsonlite-a-smarter-json-encoder/
 
 - Create UI for onscreen and hotkey session options
 	- Cancel last trial
@@ -33,6 +79,15 @@
 - Get Karma shell working
 - Write a base jasmine test of a reactionSession/reactionTrial components
 - Unit test filling up some trial objects to complete a session
+
+---
+### DATES
+	- http://stackoverflow.com/questions/15838548/parsing-iso8601-date-and-time-format-in-
+	- http://stackoverflow.com/questions/10699511/difference-between-as-posixct-as-posixlt-and-strptime-for-converting-character-v
+	- https://github.com/jeroenooms/jsonlite/issues/8
+	- http://stat.ethz.ch/R-manual/R-patched/library/base/html/strptime.html
+	- https://www.opencpu.org/posts/jsonlite-a-smarter-json-encoder/
+	- https://stat.ethz.ch/R-manual/R-devel/library/base/html/difftime.html
 
 ---
 ### Later things and Brainstorming

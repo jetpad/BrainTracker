@@ -1,0 +1,173 @@
+load("/Users/davidsmith/Sites/braintracker/davidsbraintest.RData")
+library(devtools)
+install()
+library(devtools)
+install()
+remove.packages("braintracker")
+install()
+load("/Users/davidsmith/Sites/braintracker/davidsbraintest.RData")
+library(devtools)
+install()
+install(INSTALL_opts = c('--no-lock'))
+load("/Users/davidsmith/Sites/braintracker/davidsbraintest.RData")
+install.packages(".", repos = NULL, type="source")#
+      library(opencpu)#
+      braintracker::startup()
+ls
+ls()
+braintracker::saveSession
+ls()
+ls("braintracker")
+braintracker::saveSession
+installed.packages()
+ls.str()
+newmath5
+ls()
+dataset
+ls()
+newmath5
+ls()
+see.results()
+op()
+dataset
+install.packages(".", repos = NULL, type="source")#
+      library(opencpu)#
+      braintracker::startup()
+braintracker::hello
+remove.packages("braintracker")#
+      install.packages(".", repos = NULL, type="source")#
+      library(opencpu)
+braintracker::hello
+remove.packages("braintracker")
+install.packages(".", repos = NULL, type="source")
+braintracker::hello
+ls
+ls()
+load(".RData")
+ls()
+load("/Users/davidsmith/Sites/braintracker/davidsbraintest.RData")
+install.packages(".", repos = NULL, type="source")#
+      library(opencpu)#
+      braintracker::startup()
+braintracker::hello
+braintracker::saveSession("[ { "test": 4 "}]")
+braintracker::saveSession("[ { 'test': 4 "}]")
+braintracker::saveSession("[ { 'test': 4 }]")
+braintracker::saveSession
+ls()
+jsonSessionData2
+ls()
+jsonSessionData2
+jsonSAMPLE
+jsonTEST
+load("/Users/davidsmith/Sites/braintracker/davidsbraintest.RData")
+install.packages(".", repos = NULL, type="source")#
+      library(opencpu)#
+      braintracker::startup()
+braintracker::saveSession
+load("/Users/davidsmith/Sites/braintracker/davidsbraintest.RData")
+install.packages(".", repos = NULL, type="source")#
+      library(opencpu)#
+      braintracker::startup()
+braintracker::saveSession
+braintracker::saveSession("[ { 'test': 4 }]")
+ls()
+jsonSessionData3
+ls()
+jsonSessionData3
+jsonSessionData2
+jsonSessionData2 = dataset
+jsonSessionData2
+load("/Users/davidsmith/Sites/braintracker/davidsbraintest.RData")
+install.packages(".", repos = NULL, type="source")#
+      library(opencpu)#
+      braintracker::startup()
+braintracker::saveSession
+load("/Users/davidsmith/Sites/braintracker/davidsbraintest.RData")
+list.files(path=”.”)
+list.files()
+install.packages(".", repos = NULL, type="source")#
+      library(opencpu)#
+      braintracker::startup()
+braintracker::saveSession
+remove.packages("braintracker")#
+      install.packages(".", repos = NULL, type="source")#
+      library(opencpu)#
+      braintracker::startup()
+load("/Users/davidsmith/Sites/braintracker/davidsbraintest.RData")
+remove.packages("braintracker")#
+      install.packages(".", repos = NULL, type="source")#
+      library(opencpu)#
+      braintracker::startup()
+braintracker::saveSession
+remove.packages("braintracker")#
+      install.packages(".", repos = NULL, type="source")#
+      library(opencpu)#
+      braintracker::startup()
+braintracker::saveSession
+rm(list = ls())
+remove.packages("braintracker")#
+      install.packages(".", repos = NULL, type="source")#
+      library(opencpu)#
+      braintracker::startup()
+braintracker::saveSession
+detach(package:braintracker)
+detach(braintracker)
+detach("braintracker")
+detach(package: "braintracker")
+?detach
+detach(braintracker)
+update.packages()
+remove.packages("braintracker")#
+      install.packages(".", repos = NULL, type="source")#
+      library(opencpu)#
+      braintracker::startup()
+braintracker::saveSession
+remove.packages("braintracker")#
+      install.packages(".", repos = NULL, type="source")#
+      library(opencpu)#
+      braintracker::startup()
+braintracker::saveSession("[ { 'test' }]")
+load("/Users/davidsmith/Sites/braintracker/davidsbraintest.RData")
+remove.packages("braintracker")#
+      install.packages(".", repos = NULL, type="source")#
+      library(opencpu)#
+      braintracker::startup()
+braintracker::saveSession("[ { 'test' }]")
+test = braintracker::saveSession("[ { 'test' }]")
+ls()
+test
+test <- braintracker::saveSession("[ { 'test' }]")
+test
+test <<- braintracker::saveSession("[ { 'test' }]")
+test
+man_pdf()
+opencpu::man_pdf()
+.libPaths()
+R.home
+R.home()
+PWD
+pwd
+reactionTrials <- load('/Users/davidsmith/Sites/braintracker/davidsbraintest.RData')
+ls()
+reactionTrials
+load("/Users/davidsmith/Sites/braintracker/davidsbraintest.RData")
+remove.packages("braintracker")#
+      install.packages(".", repos = NULL, type="source")#
+      library(opencpu)#
+      braintracker::startup()
+remove.packages("braintracker")#
+      install.packages(".", repos = NULL, type="source")#
+      library(opencpu)#
+      braintracker::startup()
+remove.packages("braintracker")#
+      install.packages(".", repos = NULL, type="source")#
+      library(opencpu)#
+      braintracker::startup()
+ls()
+summary(dataset)
+load("/Users/davidsmith/Sites/braintracker/davidsbraintest.RData")
+load("/Users/davidsmith/Sites/braintracker/davidsbraintest.RData")
+load("/Users/davidsmith/Sites/braintracker/davidsbraintest.RData")
+load("/Users/davidsmith/Sites/braintracker/davidsbraintest.RData")
+load("/Users/davidsmith/Sites/braintracker/davidsbraintest.RData")
