@@ -1,31 +1,20 @@
-# Reaction Time Tracker UI
-
-This adds a browser based user interface to Seth Roberts' (http://blog.sethroberts.net) reaction time tracking software.
-
-This applications lets you track your reaction speed over time. Reaction speed is an indicator of the health of your brain and by proxy, the health of your whole body. Using this application will let you see how diet and lifestyle changes effect your health.
+# ATTENTION #
+This application is not current functional and requires your own dropbox app license if you attempt to run it anyway. 
 
 ---
-### Steps to install 
+### Reaction Time Tracker
 
-- First, install R from http://www.r-project.org
+This applications tracks your reaction speed over time. Reaction speed is an indicator of the health of your brain and by proxy, the health of your whole body. Using this application will help you see how diet and lifestyle changes effect your health. This application requires a dropbox account. Your reaction time data is saved in a private app location in your account and does not have access to any of your other dropbox files.
 
-- Open your workspace Rdata file (from Seth) into R.
+Features
 
-- To install the UI into your R workspace, type these commands into the R console.
+- The reaction test works using either the keyboard, mouse/trackpad or touch screen.	 
+- It saves the application data to dropbox. That lets you run tests from multiple devices and locations while the data is all collected in one account. 
 
-    	library(devtools)
-    	library(opencpu)
-    	install_github("braintracker", "jetpad")
-    	library(braintracker)
-    	
-### Steps to run
-
-- Type this command into the R console to start the application in your browser.
-	
-		opencpu$browse("/library/braintracker/www")
+It originally began as a browser based user interface to Seth Roberts' (http://blog.sethroberts.net) reaction time tracking software. It can run independently of his software or the data can be exported/import into his R application using the R package XYZ_TO_BE_CREATED_AT_A_LATER_DATE.
 
 ---
-## Supported Browsers 
+### Supported Browsers 
 (This is limited by angular-bootstrap)
 
   - Chrome (stable and canary channel)
@@ -33,29 +22,6 @@ This applications lets you track your reaction speed over time. Reaction speed i
   - IE 9 and 10
   - Opera
   - Safari
-
-
-----------------------------------
-### Problems with the installation? then try typing these commands into the R console:
-
-    install.packages("devtools")
-    install.packages("opencpu")
-    install_github("braintracker", "jetpad")
-    library(braintracker)
-    library(opencpu)
-
-
-----------------------------------
-### For developers working this package
-
-    Open the braintracker.Rproj file.
-    
-    After making changes to the R source, do this to refresh the code in R
-
-      remove.packages("braintracker")
-      install.packages(".", repos = NULL, type="source")
-      library(opencpu)
-      braintracker::startup()
 
 
 
