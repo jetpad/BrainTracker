@@ -1,9 +1,8 @@
 #TODO and Misc. Notes
 
 - Immediate Steps
-	- Version the current app on github
-	- Remove opencpu
 	- Add support to load/save data file from dropbox
+	- Remove opencpu
 	- Create an "import" in R to get the raw data into Seth's program
 - Following Steps
 	- Integrate the gauss javascript library

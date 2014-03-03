@@ -1,0 +1,23 @@
+{
+  "name": "dropbox",
+  "main": "dropbox.js",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "components",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "homepage": "https://github.com/lavelle/dropbox",
+  "_release": "e43e59c298",
+  "_resolution": {
+    "type": "branch",
+    "branch": "master",
+    "commit": "e43e59c298887f1d0456d79604132331f981a7df"
+  },
+  "_source": "git://github.com/lavelle/dropbox.git",
+  "_target": "*",
+  "_originalSource": "dropbox-build",
+  "_direct": true
+}

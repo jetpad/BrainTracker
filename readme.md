@@ -2,6 +2,8 @@
 
 This adds a browser based user interface to Seth Roberts' (http://blog.sethroberts.net) reaction time tracking software.
 
+This applications lets you track your reaction speed over time. Reaction speed is an indicator of the health of your brain and by proxy, the health of your whole body. Using this application will let you see how diet and lifestyle changes effect your health.
+
 ---
 ### Steps to install 
 
