@@ -32,7 +32,8 @@
     "underscore": "~1.6.0",
     "angular-gestures": "~0.2.1",
     "dropstore-ng": "~1.0.5",
-    "dropbox-build": "*"
+    "gauss": "~0.2.9",
+    "dropbox-datastores-js": "~1.0.0"
   },
   "devDependencies": {
     "angular-mocks": "1.2.6",

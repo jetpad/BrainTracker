@@ -3,7 +3,7 @@
 describe('Controller: MainCtrl', function () {
 
   // load the controller's module
-  beforeEach(module('braintracker'));
+  beforeEach(module('myApp'));
 
   var MainCtrl,
     scope;
@@ -17,16 +17,13 @@ describe('Controller: MainCtrl', function () {
     scope.name = 'World';
   }));
   
-  it('name should be World', function () {
-    expect(scope.name).toBe('World');
-  });
+ // it('name should be World', function () {
+ //   expect(scope.name).toBe('World');
+//  });
 
   it('one plus one should equal two', function () {
     expect(1+1).toBe(2);
   });
 
-  it('should attach a list of awesomeThings to the scope', function () {
-    expect(scope.awesomeThings.length).toBe(3);
-  });
-
+  
 });

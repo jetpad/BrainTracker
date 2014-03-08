@@ -1,0 +1,27 @@
+{
+  "name": "gauss",
+  "version": "0.2.9",
+  "main": "gauss.min.js",
+  "ignore": [
+    ".git",
+    ".gitignore",
+    ".travis.yml",
+    "bin",
+    "build.js",
+    "index.js",
+    "lib",
+    "package.json",
+    "test"
+  ],
+  "homepage": "https://github.com/wayoutmind/gauss",
+  "_release": "0.2.9",
+  "_resolution": {
+    "type": "version",
+    "tag": "v0.2.9",
+    "commit": "9f7f3a3012c93358b4f51df1b72d96532a7def0f"
+  },
+  "_source": "git://github.com/samcday/gauss.git",
+  "_target": "~0.2.9",
+  "_originalSource": "gauss",
+  "_direct": true
+}

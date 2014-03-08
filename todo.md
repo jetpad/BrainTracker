@@ -1,9 +1,22 @@
 #TODO and Misc. Notes
 
 - Immediate Steps
+	- copy main.js to save it.
+	- have main.js alias the dbservice functions
+	- if that works then move some of the aliased calls into the main page and get rid of aliases
+	- create a group of dbService tests
+		- refresh authorization
+		- signout
+		- make sure signed out
+		- refresh authorization
+		- make sure signed in
+		- open/access datastore
+	- have dbService open up the default datastore
+
+
 	- Add support to load/save data file from dropbox
-	- Remove opencpu
 	- Create an "import" in R to get the raw data into Seth's program
+
 - Following Steps
 	- Integrate the gauss javascript library
 	- Integrate NVD3.js and D3.js to do the charting 
@@ -20,6 +33,29 @@
 		- Export
 		- Import
 		- Graphs
+
+- Data Structures
+	- User Settings
+	- Sessions
+		- sessionkey
+		- description
+		- starttime
+		- endtime
+		- durationmsec
+		- min Latency
+		- max Latency
+		- Time Waited
+		- Trials 
+	- Trials ~50 bytes
+		- 8 sessionkey
+		- 8 trial (1-32)
+		- 4 problem
+		- 4 answer
+		- 8 latencymsec 
+		- 8 latencyptile
+		- 1 include T/F
+		- 1 correction T/F
+		- 10 notes
 
 - Automate starting and linking R server to the development environment
 	- Some sort of grunt command to start up the server? 

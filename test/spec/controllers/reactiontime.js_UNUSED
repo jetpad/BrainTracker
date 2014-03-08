@@ -3,7 +3,7 @@
 describe('Controller: ReactionTimeCtrl', function () {
 
   // load the controller's module
-  beforeEach(module('braintracker'));
+  beforeEach(module('myApp'));
 
   var ReactionTimeCtrl,
     scope;
