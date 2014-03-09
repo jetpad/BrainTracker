@@ -1,0 +1,71 @@
+<div ng-controller="ReactionTimeCtrl">
+  <div class="reaction-session-wrapper">
+
+    <div class="reaction-session" ng-class="'view-' + test.getView()">
+
+      <div ng-switch on="test.getView()" ng-shortcut="'1|2|3|4|5|6|7|8|9|space'" ng-shortcut-action="test.clickedBg()" class="fill" hm-touch="test.clickedBg()" hm-tap="">
+
+        <div class="session-progress">
+        	<div class="average">Average: {{test.getAverage() | number:0}}</div>
+        	<div class="tries">Try: {{test.trials.length}}</div>
+       </div>
+
+        <div ng-switch-when="splash">
+          <h4 class="prompt">
+            <div>Click to start</div>
+          </h4>
+          <h3 class="instructions">When it says 'click', click as quickly as you can.</h3>
+        </div>
+
+        <div ng-switch-when="waiting">
+          <h4 class="prompt">
+            <div>Wait</div>
+          </h4>
+        </div>
+
+        <div ng-switch-when="go">
+          <h4 class="prompt">
+            <div>Click!</div>
+          </h4>
+        </div>
+
+        <div ng-switch-when="result">
+          <h4 class="prompt">
+            <div>{{test.currentTrial.result}} ms</div>
+          </h4>
+          <h3 class="instructions">
+            click to go again
+          </h3>
+        </div>
+
+        <div ng-switch-when="too-fast">
+          <h4 class="prompt">
+            <div>Too soon!</div>
+          </h4>
+          <h3 class="instructions">click to try again</h3>
+        </div>        
+
+        <div ng-switch-when="too-slow">
+          <h4 class="prompt">
+            <div>Too slow!</div>
+          </h4>
+          <h3 class="instructions">click to try again</h3>
+        </div>
+
+        <div ng-switch-when="leaderboard">
+          <h4 class="prompt">
+            <div>Average reaction time: {{test.getAverage()}} ms</div>
+          </h4>
+          <h3 class="instructions">click to keep going, or click SAVE to see if you made the top 100</h3>
+        </div>
+
+        <div ng-switch-when="saving">
+          <h4 class="prompt">
+            <div>Saving...</div>
+          </h4>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>

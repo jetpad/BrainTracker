@@ -1,15 +1,11 @@
 node_modules
-app
 .DS_Store
 .tmp
 .sass-cache
-R/normalCodeFile.R
 app/bower_components
 .tmp
 .Rproj.user
 .Rhistory
 .Rbuildignore
-Read-and-delete-me
-davidsbraintest.RData
 SAVE
 todo.md

@@ -1,0 +1,120 @@
+body {
+   -webkit-user-select: none;
+  padding-top: 70px;
+  padding-bottom: 30px;
+}
+
+.theme-dropdown .dropdown-menu {
+  display: block;
+  position: static;
+  margin-bottom: 20px;
+}
+
+.theme-showcase > p > .btn {
+  margin: 5px 0;
+}
+
+// Angularjs
+.nav, .pagination, .carousel, .panel-title a { 
+	cursor: pointer; }
+
+.jumbotron {
+  	padding-left: 0px;
+  	padding-right: 0px;
+    padding-top: 0px;
+    padding-bottom: 0px;
+}
+
+  .container .jumbotron {
+    padding-right: 0px;
+    padding-left: 0px;
+    padding-top: 0px;
+    padding-bottom: 0px;
+  }
+
+.session-stats {
+  text-align: center; 
+  font-size: 18px;
+  }
+
+.progress-bar-container {
+  width: 50% ;
+  padding-top: 30px;
+  margin-left: auto ;
+  margin-right: auto ;
+}
+
+.session-btn-group {
+  text-align: center;
+}
+
+.reaction-session {
+    position: relative;
+    text-align: center;
+    border-radius: 6px;
+    cursor: pointer;
+    color: black; }
+
+.reaction-session .fill {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0; }
+
+.reaction-session .prompt {
+      text-align: center;
+      padding-top: 90px;
+      font-weight: normal;
+      font-size: 48px; }
+
+ .reaction-session .session-progress {
+     color: black;
+     border-radius: 0px;
+      padding: 26px;
+      font-size: 18px;
+      position: absolute;
+      top: 0;
+      right: 0;
+      text-align: right; }
+
+.reaction-session-wrapper a {
+    text-decoration: none; }
+
+h4, .reaction-session-wrapper h3 {
+    margin: 0;
+    padding: 0;
+    border: none; }
+.reaction-session {
+    color: black; }
+.reaction-session .hilight {
+      color: #fccb0e; }
+
+.col-xs-4.number-key {
+  padding: 0px;
+}
+
+.reaction-session .number-big {
+  text-align: center;
+  font-size: 100px;
+  background-color: inherit;
+}
+ .reaction-session .number-selected {
+  color: black;
+}
+ .reaction-session .number-disabled {
+  color: #eeeeee;
+}
+ .reaction-session .number-wrong {
+  color: red;
+}
+
+.reaction-session .number-key {
+  color: white;
+  text-align: center;
+  font-size: 48px;
+  border: 1px solid #e3e3e3;
+  border-radius: 4px;
+  background-color: inherit;
+
+}

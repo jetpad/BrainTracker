@@ -17,7 +17,9 @@ module.exports = function(config) {
       'app/bower_components/angular-route/angular-route.js',
       'app/bower_components/jquery/dist/jquery.js',
       'app/bower_components/angular-bootstrap/ui-bootstrap-tpls.js',
-      'app/bower_components/dropbox-build/dropbox.js',
+      'app/bower_components/dropbox-datastores-js/lib/dropbox-datastores-1.0.0.jsXXXXXXX',
+      'https://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js',
+      'https://www.dropbox.com/static/api/dropbox-datastores-1.0-latest.js',
       'app/bower_components/dropstore-ng/dropstore-ng.js',
       'app/scripts/*.js',
       'app/scripts/**/*.js',
@@ -48,6 +50,7 @@ module.exports = function(config) {
     // - Safari (only Mac)
     // - PhantomJS
     // - IE (only Windows)
+    //browsers: ['Chrome'],
     browsers: ['Chrome'],
 
 

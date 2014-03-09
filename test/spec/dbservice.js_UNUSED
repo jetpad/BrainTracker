@@ -1,0 +1,28 @@
+'use strict';
+
+var key = 'dropbox-auth:default:cHKvNCKVzU7Jmnyaj1InU8TBCOc';
+var value = '{"key":"46tjf8x15q98xic","token":"srMz5w4ReBsAAAAAAAAAAWfQfibrbJfeI7LVKsbMvxRfX1pdpS6SOKqvN6DcgK1B","uid":"1407454"}';
+
+describe('Services: ', function () {
+
+	describe('dbService: ', function () {
+		beforeEach(module('myApp'));
+
+		beforeEach(inject(function (dbService) {
+			localStorage.setItem( key, value );
+			dbService.initialize();
+    		dbService.authenticate(false);		
+    	}));
+
+		it('authenticated is true', inject(function(dbService) {
+			expect( dbService.isAuthenticated() ).toEqual( true );
+		}));
+
+		it('datastore is open', inject(function(dbService) {
+	//	    waitsFor(function() { return dbService.isDatastoreOpen() }, 5000); 
+			expect( dbService.isDatastoreOpen() ).toEqual( true );
+		}));
+
+	})
+
+});

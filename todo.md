@@ -1,5 +1,7 @@
 #TODO and Misc. Notes
 
+- Alternative for dropbox integration https://github.com/christiansmith/ngDropbox
+
 - Immediate Steps
 	- copy main.js to save it.
 	- have main.js alias the dbservice functions
@@ -13,9 +15,10 @@
 		- open/access datastore
 	- have dbService open up the default datastore
 
-
 	- Add support to load/save data file from dropbox
 	- Create an "import" in R to get the raw data into Seth's program
+
+	- Record test type id and test version number in each session. 
 
 - Following Steps
 	- Integrate the gauss javascript library
