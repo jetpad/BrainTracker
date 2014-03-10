@@ -1,15 +1,9 @@
 'use strict';
 
-function MainCtrl($scope, $q, $http, $location, dropstoreClient, dbService, safeApply, recordWrapper) {
+function MainCtrl($scope, $q, $http, $location, dbService) {
 
     $scope.dbService = dbService;
     dbService.initialize();
-
-    //localStorage.setItem("foo", "bar");
-
-    $scope.getLocalStorage = function() {
-        return localStorage.getItem("foo") + localStorage.getItem("dog");
-    }
 
     $scope.saveSession = function() {
         console.log("save session");

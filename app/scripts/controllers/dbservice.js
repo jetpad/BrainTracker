@@ -1,93 +1,91 @@
 'use strict';
 
-myApp.service("dbService", function($location,$q,dropstoreClient) {
+myApp.service("dbService", function($location,$q,safeApply,$rootScope) {
 
-	var dropstoreService = null;
-    //var dropstoreService = dropstoreClient.create({key:  '46tjf8x15q98xic'}).authenticate(false);
-    var _datastore = null;
-    // Defaults to not authenticated until proven otherwise
-    var isAuthenticated = false;
+	var client;
+    var datastore = null;
+    var sessionTable = null;
+    var self = this;
 
 	////////////////////////////////////////////////////////////////////////////
     this.initialize = function() {
-
-    	//dropstoreService = dropstoreClient.create({key:  '46tjf8x15q98xic'}).authenticate(false);
-
 		// Do this by itself so that we can do a isAuthenticated() check without actually authorizing
-	    dropstoreService = dropstoreClient.create({key:  '46tjf8x15q98xic'}); 
- //dropstoreService = dropstoreClient.create({key:  '46tjf8x15q98xic', secret: '9iks11gdn0zihao',
-//	    	token: 'BdQpuyHNrPEAAAAAAAAAAZS9kgFY9GLb0Lw288PjmFFmCQyENAaqvpW5ic8Ww8lL'}); 
+	    client = new Dropbox.Client({key: '46tjf8x15q98xic'});
 
-
-
-// 5BaOdPohRMYAAAAAAAAAAUP5BsBTO849tefdWZISLVNEgztyJQiPqnHkWEdLSRb
-
-
-	    // NON-interactive authenticase upon page load
-//	    if (dropstoreService.isAuthenticated() == false) {
-	       // isAuthenticated = false;
-	        this.authenticate(false);
-//	    }
+	    this.authenticate({interactive: false});
     }  
 	////////////////////////////////////////////////////////////////////////////
 	this.isAuthenticated = function() {
-    	return dropstoreService.isAuthenticated();
+    	return client.isAuthenticated();
     }
     ////////////////////////////////////////////////////////////////////////////
 	this.isDatastoreOpen = function() {
-		if (_datastore === null)
-			return false
-		else
-			return true
+		//console.log("isDatastoreOpen:", !(datastore === null) );
+		return !(datastore === null);
 	}
 
 	////////////////////////////////////////////////////////////////////////////
-	this.authenticate = function(interactive) {
-	//	console.log("dbService: authenticate: isAuthenticated:", isAuthenticated);
-  
-        // Defaults to true
-        interactive = typeof interactive !== 'undefined' ? interactive : true;
+	this.authenticate = function(options) {
 
-        console.log("MainCtrl.authenticate(interactive: ", interactive, ")" );
-  
-  		// Called when session records change
-    	this.sessionRecordsChanged = function(records) {
-    		console.log('a record has changed');
-    	}
-   
-        dropstoreService
-            .authenticate({interactive: interactive})
-            .then(function(result){
-            	console.log("authenticate:result: ", result );
-            	var datastoreManager = dropstoreService.getDatastoreManager();
-                isAuthenticated = true;
-                return datastoreManager.openDefaultDatastore();
-                }, 
-                function(reason) {
-                	console.log('Authentication Failed: ' + reason);
-                }
-            ) 
-            .then(
-                function(datastore){
-                    console.log('completed openDefaultDatastore',datastore);
-                    _datastore = datastore;
+		// Try to finish OAuth authorization.
+		client.authenticate(options, function (error) {
+		    if (error) {
+		        console.log('Authentication error: ' + error);
+		    }
+		});
 
-                   _datastore.SubscribeRecordsChanged( function(records) {
-    					console.log('a session record has changed: ', records );
-    				}, 'session' );
+   		if (client.isAuthenticated()) {
 
-                    _datastore.SubscribeRecordsChanged( function(records) {
-    					console.log('a trial record has changed: ', records );
-    				}, 'trial' );
-  
-                }
-            )   
+			client.getDatastoreManager().openDefaultDatastore(function (error, _datastore) {
+	    		if (error) {
+	       		 	console.log('Error opening default datastore: ' + error);
+	    		}
+	    		datastore = _datastore;
+	    		console.log('completed openDefaultDatastore');
+
+	    		sessionTable = datastore.getTable('session');
+
+// In this callback, how to call a 'this" function? 
+
+	    		self.subscribeRecordsChanged( function(records) {
+    				console.log('a session record has changed: ', records );
+    			}, 'session' );
+
+                self.subscribeRecordsChanged( function(records) {
+    				console.log('a trial record has changed: ', records );
+    			}, 'trial' );
+	    	});
+	    }				
+  	}
+    /////////////////////////////////////////////////////////////////////
+    var datastoreEventHandler = function(callback){
+        return function(arr){
+            safeApply($rootScope, function(){
+                callback(arr);
+            });
+        }
+    }
+    /////////////////////////////////////////////////////////////////////
+    this.subscribeRecordsChanged = function(callback, tableid){
+        var fn = function(){};
+        if(tableid){
+            fn = datastoreEventHandler(function(event){
+                var records = event.affectedRecordsForTable(tableid);
+                callback(records);
+            });
+        }
+        else{
+            fn = datastoreEventHandler(callback);
         }
 
-    // Add session
+        datastore.recordsChanged.addListener(fn);
+        return fn;
+    }
+
+// Add session ///////////////////////////////////////////////////////////////////
     this.addSession = function( session ) {
     	console.log('add a session record')
-    	var sessionTable = _datastore.getTable('session');
+    	sessionTable = datastore.getTable('session');
 
     	var sessionAdded = sessionTable.insert({
                         description: "Description",
@@ -130,42 +128,61 @@ myApp.service("dbService", function($location,$q,dropstoreClient) {
             this.authenticate();
     }
     ////////////////////////////////////////////////////////////////////////////
+    function basicDeferredCallback(deferred, cmdName){
+        return function(err, res){
+            safeApply($rootScope,function() {
+                if (err) {
+                    console.log('dbService "'+cmdName+'" returned error', err);
+                    deferred.reject(err)
+                } else {
+                    console.log('dbService "'+cmdName+'" returned successfully', res);
+                    deferred.resolve(res)
+                }
+            });
+        }
+    }
+	////////////////////////////////////////////////////////////////////////////
     this.signout = function(){
-        console.log('dbService: in the controller signout: isAuthenticated:', isAuthenticated, " dropstoreClient:", dropstoreClient);
-
- //       if (isAuthenticated == false) {
-    //        console.log('dbService: signout: user was already signed out.: isAuthenticated:', isAuthenticated );   
-//        }
         
-  //      if ((isAuthenticated == true) || (dropstoreClient.isAuthenticated() == true)) {
-  //           console.log("dbService: signout: inconsistency in authentication state");
-  //          isAuthenticated = false;
-            _datastore = null;
-  //      }
-
-        if (dropstoreClient.isAuthenticated() == false) {
-            // Don't try to to do the dropstoreClient signout cause it won't work anyway
-//            console.log("dbService: dropstoreClient says already signed out so not going to try it again.");
+        datastore = null;
+ 
+        if (this.isAuthenticated() == false) {
+        	console.log("not authenticated, signing out");
 			$location.path( "/signout" );
         }
-
-      	dropstoreClient.signOut({mustInvalidate: true})
-      	.then(
-        function(){
- //           console.log('dbService: signout: successful: isAuthenticated:', isAuthenticated);
-            isAuthenticated = false;
-            _datastore = null;
-            $location.path( "/signout" );
-        }, 
-        function(error){
- //           console.log('dbService: signout: failure: isAuthenticated:', isAuthenticated);
-            $location.path( "/signout" );
-            _datastore = null;
-            // Go to a signup failure (try again?) page. 
-        }
-      );
+        else {
+	        new function(){ 
+	        	var deferred = $q.defer();
+	    	    client.signOut({mustInvalidate: true}, basicDeferredCallback(deferred, 'signOut'));
+	        	return deferred.promise;
+	        }().then(function() {
+	        	// Success
+	        	console.log("signing out");
+	        	$location.path("/signout");
+	        }, function() {
+	        	// Failure - still redirect to signout page
+	        	console.log("Error signing out");
+	        	$location.path("/signout");
+	        });
+		}  
     } // End of signout
-    ////////////////////////////////////////////////////////////////////////////
-    
+    ////////////////////////////////////////////////////////////////////////////    
 	});
+
+myApp.factory('safeApply', [function($rootScope) {
+        return function($scope, fn) {
+            var phase = $scope.$root.$$phase;
+            if(phase == '$apply' || phase == '$digest') {
+                if (fn) {
+                    $scope.$eval(fn);
+                }
+            } else {
+                if (fn) {
+                    $scope.$apply(fn);
+                } else {
+                    $scope.$apply();
+                }
+            }
+        }
+    }]);
 

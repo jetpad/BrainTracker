@@ -1,5 +1,5 @@
 'use strict';
 
 var myApp = angular.module('myApp', 
-    ['ui.bootstrap', 'dropstore-ng', 'recordWrapper',
+    ['ui.bootstrap',
      'angular-gestures','ngRoute' ]);

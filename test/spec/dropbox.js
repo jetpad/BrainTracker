@@ -5,15 +5,15 @@ describe('dropbox', function () {
 	var client;
 	var sessionTable;
 	var datastoreIsOpen = false;
-	var key = '{"key":"46tjf8x15q98xic","token":"srMz5w4ReBsAAAAAAAAAAWfQfibrbJfeI7LVKsbMvxRfX1pdpS6SOKqvN6DcgK1B","uid":"1407454"}';
+	var isSignedOut = false;
+	var _datastore;
+	var key = '{"key":"46tjf8x15q98xic","token":"S7px_3au_vkAAAAAAAAAAWtz8ZbnJocACTAZD1UvoDwkrPbJCyK-EGkifs3OhDXk","uid":"1407454"}';
 	
 	beforeEach(function() {
 
-		console.log("About to set the localStorage");
 		localStorage.setItem('dropbox-auth:default:cHKvNCKVzU7Jmnyaj1InU8TBCOc', key );
-		
+
 		client = new Dropbox.Client({key: '46tjf8x15q98xic'});
-		console.log("About to authenticate");
 		// Try to finish OAuth authorization.
 		client.authenticate({interactive: false}, function (error) {
 		    if (error) {
@@ -22,7 +22,6 @@ describe('dropbox', function () {
 		});
 
 	    if (client.isAuthenticated()) {
-		    console.log("about to get datastore manager");
 
 			client.getDatastoreManager().openDefaultDatastore(function (error, datastore) {
 	    		if (error) {
@@ -30,9 +29,9 @@ describe('dropbox', function () {
 	    		}
 	    		datastoreIsOpen = true;
 
-	    		console.log("Opened default datastore");
-
 	    		sessionTable = datastore.getTable('session');
+
+	    		_datastore = datastore;
 
 	    		var sessionAdded = sessionTable.insert({
                         description: "Description",
@@ -45,8 +44,8 @@ describe('dropbox', function () {
 	    		console.log("After added sessions");
 
 	    	});
-	    waitsFor(function() { return datastoreIsOpen }, 5000); 
 	    }		
+	    waitsFor(function() { return datastoreIsOpen }, 5000); 
 	});
 
 	it('client is not null', function() {
@@ -61,4 +60,20 @@ describe('dropbox', function () {
 		expect( sessionTable ).not.toBeNull();
 	});
 
+	it('datastore is not null', function() {
+		expect( _datastore ).not.toBeNull();
+	});
+/*
+	it('signout successful', function() {
+		client.signOut( function(error, datastore) {
+			if (error) {
+				alert('Error signing out: ' + error );
+			}
+			isSignedOut = true;
+		})
+		waitsFor(function() { return (isSignedOut) }, 5000);
+
+		expect( client.isAuthenticated() ).toEqual( false );
+	});
+*/
 });
