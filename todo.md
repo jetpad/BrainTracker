@@ -1,8 +1,16 @@
 #TODO and Misc. Notes
 
+- To export from R
+	- write.csv(file="ReactionTime.csv", x=newmath5)
+
 - Alternative for dropbox integration https://github.com/christiansmith/ngDropbox
 
 - Immediate Steps
+
+	- Breakup the dbservice.js test into individual small test files and put them in a dbservice subdirectory
+
+	- Create and select a "TESTING" datastore for running unit tests
+
 	- copy main.js to save it.
 	- have main.js alias the dbservice functions
 	- if that works then move some of the aliased calls into the main page and get rid of aliases
@@ -40,25 +48,27 @@
 - Data Structures
 	- User Settings
 	- Sessions
-		- sessionkey
-		- description
-		- starttime
-		- endtime
-		- durationmsec
-		- min Latency
-		- max Latency
-		- Time Waited
-		- Trials 
+		- sessionkey   X
+		- description  X
+		- starttime    X
+		- endtime      X
+		- durationmsec X
+		- min Latency  X
+		- max Latency  X
+		- Time Waited  X
+		- Trials       X
 	- Trials ~50 bytes
-		- 8 sessionkey
-		- 8 trial (1-32)
-		- 4 problem
-		- 4 answer
-		- 8 latencymsec 
-		- 8 latencyptile
-		- 1 include T/F
-		- 1 correction T/F
-		- 10 notes
+		- 8 sessionkey    X
+		- 8 trial (1-32)  X
+		- 4 problem       X
+		- 4 answer        X 
+		- 8 latencymsec   X 
+		- 8 latencyptile  X
+		- 1 include T/F      X
+		- 1 correction T/F   X
+		- 1 warmup T/F       X
+		- 1 correct T/F      X
+		- 10 notes           X
 
 - Automate starting and linking R server to the development environment
 	- Some sort of grunt command to start up the server? 

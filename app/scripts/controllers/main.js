@@ -14,8 +14,13 @@ function MainCtrl($scope, $q, $http, $location, dbService) {
     $scope.displayMessage = function(message) {
       $window.alert(message)
     }
+
+    $scope.showContent = function($fileContent){
+        $scope.content = $fileContent;
+        var sessions = dbService.parseCSVtoSessions( $fileContent );
+        dbService.addSessions(sessions);
+
+    }
 };
 
 var mainCtrl = angular.module('MainCtrl', []);
-
-

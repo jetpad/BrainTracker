@@ -7,9 +7,10 @@ describe('dropbox', function () {
 	var datastoreIsOpen = false;
 	var isSignedOut = false;
 	var _datastore;
+	var dbRecord = null;
 	var key = '{"key":"46tjf8x15q98xic","token":"S7px_3au_vkAAAAAAAAAAWtz8ZbnJocACTAZD1UvoDwkrPbJCyK-EGkifs3OhDXk","uid":"1407454"}';
 	
-	beforeEach(function() {
+	beforeEach(function(done) {
 
 		localStorage.setItem('dropbox-auth:default:cHKvNCKVzU7Jmnyaj1InU8TBCOc', key );
 
@@ -33,7 +34,7 @@ describe('dropbox', function () {
 
 	    		_datastore = datastore;
 
-	    		var sessionAdded = sessionTable.insert({
+	    		dbRecord = sessionTable.insert({
                         description: "Description",
                         starttime: new Date,
                         endtime: new Date,
@@ -41,39 +42,31 @@ describe('dropbox', function () {
                         maxlatency: 200,
                         durationmsec: 4
                     });
-	    		console.log("After added sessions");
-
+	    		//console.log("After added sessions");
+	    		done();
 	    	});
 	    }		
-	    waitsFor(function() { return datastoreIsOpen }, 5000); 
+	   // waitsFor(function() { return datastoreIsOpen }, 5000); 
 	});
 
-	it('client is not null', function() {
+	xit('client is not null', function() {
 		expect( client ).not.toBeNull();
 	});
 
-	it('authenticated is true', function() {
+	xit('authenticated is true', function() {
 		expect( client.isAuthenticated() ).toEqual( true );
 	});
 
-	it('sessionTable is not null', function() {
+	xit('sessionTable is not null', function() {
 		expect( sessionTable ).not.toBeNull();
 	});
 
-	it('datastore is not null', function() {
+	xit('datastore is not null', function() {
 		expect( _datastore ).not.toBeNull();
 	});
-/*
-	it('signout successful', function() {
-		client.signOut( function(error, datastore) {
-			if (error) {
-				alert('Error signing out: ' + error );
-			}
-			isSignedOut = true;
-		})
-		waitsFor(function() { return (isSignedOut) }, 5000);
 
-		expect( client.isAuthenticated() ).toEqual( false );
+	xit('record has field', function() {
+		//var dbRecord = new Dropbox.Datastore.Record();
+		expect( dbRecord.has('starttime') ).toEqual( true );
 	});
-*/
 });

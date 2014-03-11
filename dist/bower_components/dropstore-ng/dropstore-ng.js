@@ -54,16 +54,7 @@ angular.module("dropstore-ng", []).
                         deferred.reject(err)
                     } else {
                         logger.log('dropstore "'+cmdName+'" returned successfully', res);
-              
-                    console.log("Hit removed line !!!!!!!!!!!!", res );
-              // Can't do .authenticate({interactive: false}) 
-                  //  if (cmdName == "authenticate") {
-                  //      deferred.resolve(dropstoreDatastoreManager(res));
-                  //  }
-                  //  else
-                      deferred.resolve(res);
-              // Can't do .authenticate({interactive: false}) 
-              //DAS            deferred.resolve(dropstoreDatastoreManager(res))
+                        deferred.resolve(dropstoreDatastoreManager(res))
                     }
                 });
             }
@@ -195,9 +186,7 @@ angular.module("dropstore-ng", []).
             ///////////////////////////////////////////////////////////////////////
             //should never be called directly, but is available for custom calls.
             var dropstoreDatastoreManagerService = {};
-            console.log("_client: ", _client );
             dropstoreDatastoreManagerService._client = _client;
-            // DAS something is strange on the next line
             dropstoreDatastoreManagerService._datastoreManager = dropstoreDatastoreManagerService._client.getDatastoreManager();
 
             /**

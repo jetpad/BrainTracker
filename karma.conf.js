@@ -18,11 +18,14 @@ module.exports = function(config) {
       'app/bower_components/jquery/dist/jquery.js',
       'app/bower_components/angular-bootstrap/ui-bootstrap-tpls.js',
       'app/bower_components/dropbox-datastores-js/lib/dropbox-datastores-1.0.0.js',
-      'app/bower_components/dropstore-ng/dropstore-ng.js',
       'app/scripts/*.js',
       'app/scripts/**/*.js',
       'test/mock/**/*.js',
-      'test/spec/**/*.js'
+      'test/spec/**/*.js',
+
+      // Fixtures
+      {pattern: 'test/data/*.csv', watched: true, served: true, included: false}
+
     ],
 
     // list of files / patterns to exclude
