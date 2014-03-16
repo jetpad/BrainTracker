@@ -1,7 +1,7 @@
 'use strict';
 
 var myApp = angular.module('myApp', 
-    ['ui.bootstrap',
+    ['ui.bootstrap', 'ngTable',
      'angular-gestures','ngRoute' ]);
 /*
 <div ng-controller="MainCtrl" class="container">
@@ -21,6 +21,7 @@ myapp.controller('MainCtrl', function ($scope) {
   });
 };
 */
+
 myApp.directive('onReadFile', function ($parse) {
   return {
     restrict: 'A',
@@ -40,3 +41,4 @@ myApp.directive('onReadFile', function ($parse) {
     }
   };
 });
+

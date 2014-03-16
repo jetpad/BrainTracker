@@ -1,11 +1,90 @@
 #TODO and Misc. Notes
 
+- Upon importing or saving a session, calculate the mean and save it as part of the session, NO
+
+- Show a progress bar for the loading of the main dataset. 
+
+
+- ANOVA to compare the means of each session?
+
+- Combine trials from existing sessions when reading from the databse
+	- Do just a basic fetch of the session records
+	- Create a trials structure, iterate through the sesssions and populate the trials
+	- Create a report page to view things
+5- Add any additional sessions that come in
+- Show the session list in a report
+- Show the trials for a session in a report. 
+- Progress bar for a session that grows 
+	- from the center left (red) to reflect a lower than 50% tile
+	- from the center right (green) to reflect a higher than 50% tile
+	- updated dynamically as the session progresses
+	- ptile of last trial is somehow also displayed on that bar 
+- Create place for user to enter notes about the session. 
+- When get to max "included" trials then save the session and go to the "finished" page. 
+- Try to add the "latency" of the last trial to the end time of the session. 
+- Remove "Save" button. 
+- Fix the dropbox.js unit test
+
+- Register datastorebrowser.com and create a generic site for browsing datastores of information. 
+
+- Allow user to create a "study"
+	- Select length of time for the study (ie 1 Week, A for 1 week followed by B for a week, break inbetween?)
+	- Show calendar/chart of the overlap of the study on the reaction time data including future time.
+	- Create a chart/run statistics that compare the two timeperiods for you. 
+
+- Keep the trial data together in a single string
+- Add an array of those strings to the sesion record
+- When one datastore fills up, create a new one to use
+- When starting up, pull the records out of all the datasets into memory. 
+- Treat the last (non-full) dataset as special. 
+
+- Calculate the latency for the session and save it during import/save session. 
+- Remove the precalculated ptile from the trial. 
+
+
+- Export the whole thing out as JSON.
+
+- Storage Space
+	- Original two tables (300 sessions)
+	- Combined into one table (2000 sessions)
+		- Replace true/false with 1/0 to make smaller
+		- Or maybe leave out false values 
+	- Combined into one table with shortened field names in the trials (3000 sessions)
+	- Combined into one file with full names (2500 sessions)
+
+	- Don't keep individual trials around
+		- probably will hit the 10k session limit
+
+	- R tasks
+		- analyse how he calculates ptile for during 
+			- small ptile is your overall ptile score for the current session (determined on the fly.)
+			- large ptile is the ptile of the trial just finished (determined on the fly).
+
+- Q's for dropbox
+	- Is non-minimized version of Datastore js file available? 
+
 - To export from R
 	- write.csv(file="ReactionTime.csv", x=newmath5)
 
 - Alternative for dropbox integration https://github.com/christiansmith/ngDropbox
 
 - Immediate Steps
+
+	- Multiple datastores? 
+	- Just store it in a file? 
+
+	- Display a process bar for the background import 
+	- move it to an "import" page. 
+	- Add text to explain things
+	- Do the header check. 
+	- Add a "report" to look at the data. 
+
+	- Dropbox
+		- Import,{"error": "Invalid delta: delta size cannot exceed 2097152 bytes; observed size: 4322868"}
+			- What is the best way to import into smaller chunks since we don't control when it syncs. 
+		- Size of the field names effects overall size and limits (stored for each record)
+		- Transactions, what if crash during import or ? 
+		- 
 
 	- Breakup the dbservice.js test into individual small test files and put them in a dbservice subdirectory
 

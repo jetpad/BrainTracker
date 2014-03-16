@@ -56,7 +56,7 @@
       <div ng-switch-when="result" ng-shortcut="'5'" ng-shortcut-action="test.clickedNumber()">
         <h3>
           <div>&nbsp;</div>
-          <div>{{test.currentTrial.latencymsec | number:0}} ms</div>
+          <div>{{test.currentTrial.latency | number:0}} ms</div>
         </h3>
         <h3>
           <div>press <b>5</b> to go again</div>
@@ -89,7 +89,7 @@
       <div ng-switch-when="wrong-number" ng-shortcut="'5'" ng-shortcut-action="test.clickedNumber()">
         <h3>
           <div>&nbsp;</div>
-          <div>{{test.currentTrial.latencymsec | number:0}} ms</div>
+          <div>{{test.currentTrial.latency | number:0}} ms</div>
         </h3>
         <h3>
           <div>wrong number!</div>
@@ -100,7 +100,7 @@
       <div ng-switch-when="session-ended" ng-shortcut="'5'" ng-shortcut-action="test.clickedNumber()">
         <h3>
           <div>&nbsp;</div>
-          <div>{{test.currentTrial.latencymsec | number:0}} ms</div>
+          <div>{{test.currentTrial.latency | number:0}} ms</div>
         </h3>
         <h3>
           <div>session ended</div>
@@ -126,7 +126,7 @@
           <button type="button" class="btn btn-default" ng-shortcut="'e'" 
                   ng-shortcut-action="test.endSession()" ng-click="test.endSession()"><u>E</u>nd Session</button>
           <button id="savebutton" type="button" class="btn btn-default" ng-shortcut="'s'"  
-                  ng-click="saveSession()" ng-shortcut-action="saveSession()"><u>S</u>ave Session</button>
+                  ng-click="test.saveSession()" ng-shortcut-action="test.saveSession()"><u>S</u>ave Session</button>
           <button id="helloButton" type="button" class="btn btn-default" ng-shortcut="'h'"  
                   ng-click="test.hello('David')" ng-shortcut-action="test.hello('David')">
                   <u>H</u>ello</button>

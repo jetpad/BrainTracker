@@ -1,0 +1,31 @@
+<div class="well">
+    <h2>Importing from Seth's R application</h2>
+    <p>
+	  	<ol>
+	  		<li>Run this command in R. <br/><br/>
+	  			<blockquote>
+	  				write.csv(file="ReactionTime.csv", x=newmath5)
+	  			</blockquote>
+	  		</li>
+	  		<li>Select the ReactionTime.csv file you exported from R.
+					<br/><br/>
+					<input class="btn btn-default" type="file" on-read-file="showContent($content)" />
+					<br/>
+	  		</li>
+	  		<li>
+	  			Press: <button type="button" class="btn btn-default"  ng-disabled="(content == null) || (!dbReady())"
+                   ng-click="importCSV()">Import CSV File</button>
+	  		</li>
+	  	</ol> 
+
+        <progressbar class="active" max="100" value="( importIndex * 100 ) / importMax" type="success">
+        	<span style="color:black; white-space:nowrap;">{{importIndex}} / {{importMax}}</span>
+        </progressbar>
+
+		<div class="container">
+			<h2>CSV file content is:</h2>
+			<pre>{{ content }}</pre>
+			<textarea rows="10" cols="80">{{json}}</textarea>
+	</p>
+</div>
+

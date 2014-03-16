@@ -3,19 +3,16 @@ myApp.factory("ReactionTimeTrial", function($timeout) {
     return ReactionTimeTrial = function() {
         function ReactionTimeTrial(test) {
             var _this = this;
-            this.minimumTime = 100;
-            this.maximumTime = 2000;
-            //this.startedWaitingTime = new Date;
+            this.minimumtime = 100;
+            this.maximumtime = 2000;
             this.phase = "waiting";
             this.correction = false; 
-           // this.timeWaited=~~(1500 + Math.random() * 2000);
-            this.timeWaited=1500;
-            this.latencyptile = null;
-
+            this.delay=1500;
+         
             $timeout.cancel(this.delayPromise);
             this.delayPromise = $timeout(function() {
                 return _this.enterGoPhase()
-            }, this.timeWaited)
+            }, this.delay)
 
         }
         ReactionTimeTrial.prototype.enterGoPhase = function() {
@@ -28,29 +25,26 @@ myApp.factory("ReactionTimeTrial", function($timeout) {
             }
    
             this.phase = "go";
-            this.startTime = new Date
-            // Save the start time so that the elapsed time counter can get to it
-            // Probably not the right play/way to save it.
-            //$rootScope.startTime = this.startTime;
-            return this.startTime;
+            this.starttime = new Date
+            return this.starttime;
         };
    
         ReactionTimeTrial.prototype.reactionClick = function() {
             $timeout.cancel(this.delayPromise);
-            this.endTime = new Date;
+            this.endtime = new Date;
 
             // Time of the result
-            this.latencymsec = this.endTime - this.startTime;
+            this.latency = this.endtime - this.starttime;
             // It was a success and show the "result" (unless found otherwise)
             this.phase = "result";
        
-            if (!this.startTime) 
+            if (!this.starttime) 
                 this.phase = "too-fast";
             
-            if ((this.endTime - this.startTime) < this.minimumTime) 
+            if ((this.endtime - this.starttime) < this.minimumtime) 
                 this.phase = "too-fast";
 
-            if ((this.endTime - this.startTime) > this.maximumTime)
+            if ((this.endtime - this.starttime) > this.maximumtime)
                 this.phase = "too-slow";
 
             // Validate number seleted 
@@ -78,13 +72,13 @@ myApp.factory("ReactionTimeTrial", function($timeout) {
                     break;
             }
 
-            return this.latencymsec;
+            return this.latency;
             
         };
        
         return ReactionTimeTrial
     }()
-}).factory("ReactionTimeSession", function(ReactionTimeTrial, $http) {
+}).factory("ReactionTimeSession", function(ReactionTimeTrial, $http, dbService) {
     var ReactionTimeSession;
     return ReactionTimeSession = function() {
         function ReactionTimeSession() {
@@ -218,7 +212,7 @@ myApp.factory("ReactionTimeTrial", function($timeout) {
             for (_i = 0, _len = _ref.length; _i < _len; _i++) {
                 trial = _ref[_i];
                 if (trial.include == true) {
-                    total += trial.latencymsec;
+                    total += trial.latency;
                     includedTrials++;
                 }
             }
@@ -277,65 +271,54 @@ myApp.factory("ReactionTimeTrial", function($timeout) {
         ReactionTimeSession.prototype.hello = function(myname) {
             //disable the button to prevent multiple clicks
             $("#hellobutton").attr("disabled", "disabled");
-/*
-             //perform the request
-            var req = ocpu.rpc("hello", {
-              myname : myname
-            }, function(output){
-                scope.$apply(function() {
-                    scope.message = output.message;
-
-                    console.log("message:", scope.message );
-                });
-            });
-
-            var req = ocpu.rpc("hello", {
-              myname : myname
-            }, function(output){
-                this.setMessage( "HI" );
-                console.log("message:", this.message);
-            });
-            
-            //if R returns an error, alert the error message
-            req.fail(function(){
-              alert("Server error: " + req.responseText);
-            });
-            
-            //after request complete, re-enable the button 
-            req.always(function(){
-                $("#hellobutton").removeAttr("disabled")
-            });
-*/
             return "TESTING";
         };
 
         ReactionTimeSession.prototype.saveSession = function() {
+           
+            session = {};
+            session.trials=[];
+            trials = this.trials;
 
-            console.log("saveSession");
+            // Is there anything to save? 
+            if (trials.length == 0)
+                return null;
+           
+            for(var i=0; i < trials.length; i++)
+            {
+                // Add this trial to the current session
+                var trialObject = {};
+                var trial = trials[i];
 
-            //disable the button to prevent multiple clicks
-            $("#savebutton").attr("disabled", "disabled");
- 
-            var thesessiondata = "[Here is the session data.]";
-            this.saveResult = "Trying to save.";
-            //perform the request
-            var req = ocpu.rpc("saveSession", {
-              thesessiondata : thesessiondata
-            }, function(output){
-                this.saveResult = output;
-            });
+                trialObject.i = i+1;              // index
+                trialObject.p = trial.problem;    // problem
+                trialObject.a = trial.answer;     // answer
+                trialObject.l = Math.round(trial.latency); // latency
+                if (trial.include == true)      // include
+                    trialObject.n = true;
+                if (trial.correct == true)      // correct
+                    trialObject.c = true;
+                if (trial.warmup == true)       // warmup
+                    trialObject.w = true;
+                if (trial.correction == true)   // correction
+                    trialObject.x = true;      
+                session.trials.push(JSON.stringify(trialObject));
+            }
             
-            //if R returns an error, alert the error message
-            req.fail(function(){
-              alert("Server error: " + req.responseText);
-            });
-            
-            //after request complete, re-enable the button 
-            req.always(function(){
-                $("#submitbutton").removeAttr("disabled")
-            });
+            session.notes = "User needs to enter this somewhere."
+            session.starttime = new Date(trials[0].starttime);
+            session.endtime  = new Date(trials[trials.length-1].endtime);
+            session.duration = Math.round((session.endtime - session.starttime)/1000);
+            session.minlatency = 150;
+            session.maxlatency = 3000;
+            session.testtype = "A";
+            session.testversion = 1;
+            session.delay = Math.round( trials[0].delay );
 
-            return "TESTING";
+            console.log("saveSession:", session );
+            this.initialize();
+            
+            return dbService.addSession( session );
         };
 
         return ReactionTimeSession

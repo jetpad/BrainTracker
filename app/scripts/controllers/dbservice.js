@@ -1,6 +1,6 @@
 'use strict';
 
-myApp.service("dbService", function($location,$q,safeApply,$rootScope) {
+myApp.service("dbService", function($location,$q,safeApply,$rootScope,$timeout) {
 
 	var client;
     var datastore = null;
@@ -14,7 +14,8 @@ myApp.service("dbService", function($location,$q,safeApply,$rootScope) {
 		// Do this by itself so that we can do a isAuthenticated() check without actually authorizing
 	    client = new Dropbox.Client({key: '46tjf8x15q98xic'});
 
-	    this.authenticate({interactive: false});
+        console.log("Initialize");
+	    return self.authenticate({interactive: false});
     }  
 	////////////////////////////////////////////////////////////////////////////
 	this.isAuthenticated = function() {
@@ -47,6 +48,7 @@ myApp.service("dbService", function($location,$q,safeApply,$rootScope) {
 	        	else {
 	        		console.log("successfully created new datastore");
 	        		datastore = _datastore;
+	        		self.openTables();
 	        		deferred.resolve(_datastore); 
 	        	}
 	    	})
@@ -54,18 +56,34 @@ myApp.service("dbService", function($location,$q,safeApply,$rootScope) {
         return deferred.promise;    
 	}
 	////////////////////////////////////////////////////////////////////////////
-	this.openDefaultDatastore = function() {
+	this.listDatastores = function() {
+		var deferred = $q.defer();
+        datastoreManager.listDatastores( function(error, datastorelist) {
+        	safeApply($rootScope, function() {
+	        	if (error) {
+	        		console.log('Error opening default datastore: ' + error); 
+	        		deferred.reject(error);
+	        	}
+	        	else {
+	        		deferred.resolve(datastorelist); 
+	        	}
+	    	})
+	    } );
+        return deferred.promise;    
+	}
+	////////////////////////////////////////////////////////////////////////////
+	this.openDatastore = function(datastoreId) {
 		var deferred = $q.defer();
 
 		// If it is already open then return
-		if (this.isDatastoreOpen()) {
-			if (datastore.getId() == "default") {
+		if (self.isDatastoreOpen()) {
+			if (datastore.getId() == datastoreId) {
 				deferred.resolve(datastore);
 				return deferred.promise;
 			}
 		}
 
-        datastoreManager.openDefaultDatastore( function(error, _datastore) {
+        datastoreManager.openDatastore( datastoreId, function(error, _datastore) {
         	safeApply($rootScope, function() {
 	        	if (error) {
 	        		console.log('Error opening default datastore: ' + error); 
@@ -74,52 +92,119 @@ myApp.service("dbService", function($location,$q,safeApply,$rootScope) {
 	        	else {
 	        		//console.log("successfully opened default datastore");
 	        		datastore = _datastore;
+	        		self.openTables();
 	        		deferred.resolve(_datastore); 
 	        	}
 	    	})
 	    } );
         return deferred.promise;    
+	}	
+	////////////////////////////////////////////////////////////////////////////
+	this.openDefaultDatastore = function() {
+        var deferred = $q.defer();
+
+        // If it is already open then return
+        if (this.isDatastoreOpen()) {
+            if (datastore.getId() == "default") {
+                deferred.resolve(datastore);
+                return deferred.promise;
+            }
+        }
+
+        datastoreManager.openDefaultDatastore( function(error, _datastore) {
+            safeApply($rootScope, function() {
+                if (error) {
+                    console.log('Error opening default datastore: ' + error); 
+                    deferred.reject(error);
+                }
+                else {
+                    console.log("successfully opened default datastore");
+                    datastore = _datastore;
+                    self.openTables();
+                    deferred.resolve(_datastore); 
+                }
+            })
+        } );
+        return deferred.promise;      
 	}
 	////////////////////////////////////////////////////////////////////////////
 	this.authenticate = function(options) {
 
+        var deferred = $q.defer();
+
+        if (self.ready()) {
+            deferred.resolve(datastore);
+            return deferred.promise;
+        }
+
 		// Try to finish OAuth authorization.
 		client.authenticate(options, function (error) {
-		    if (error) {
-		        console.log('Authentication error: ' + error);
-		    }
+            safeApply($rootScope, function() {
+    		    if (error) {
+    		        console.log('Authentication error: ' + error);
+                    deferred.reject(error);
+    		    }
+                else {
+                    if (client.isAuthenticated()) {
+
+                        datastoreManager = client.getDatastoreManager();
+
+                        self.openDefaultDatastore(datastore).then( 
+                            function(datastore) {
+                                console.log("authenticate success");
+                                deferred.resolve(datastore); 
+                            }, 
+                            function(error){
+                                console.log('Error opening default datastore: ' + error);
+                                deferred.reject(error);
+                            }
+                        );
+                    }   
+                    else {
+                        // Client wasn't authenticated but we successfully found that out
+                        deferred.reject();
+                    }                    
+                }
+            })
 		});
 
-   		if (client.isAuthenticated()) {
-
-			datastoreManager = client.getDatastoreManager();
-
-			this.openDefaultDatastore().then( 
-				function(_datastore) {
-					self.openTables();
-				}, 
-				function(error){
-					console.log('Error opening default datastore: ' + error);
-			    }
-			);
-	    }				
+        return deferred.promise;			
   	}
   	/////////////////////////////////////////////////////////////////////
   	this.openTables = function() {
 		sessionTable = datastore.getTable('session');
-	    trialTable = datastore.getTable('trial');
+	  
+	   // console.log("sessionTable: ", sessionTable );
+	   // console.log("trialTable: ", trialTable );
 
-		this.subscribeRecordsChanged( function(records) {
-			console.log('a session record has changed: ', records );
+		self.subscribeRecordsChanged( function(records) {
+			console.log('a session record has changed: ', records.length );
 		}, 'session' );
 
-        this.subscribeRecordsChanged( function(records) {
-			console.log('a trial record has changed: ', records );
+        self.subscribeRecordsChanged( function(records) {
+	//		console.log('a trial record has changed: ', records );
 		}, 'trial' );
 	}
-  	/////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////
+    // True when the database objects are fully initialized
+    this.ready = function() {
+        if (sessionTable) {
+            if (Dropbox.Datastore.Table.isValidId(sessionTable.getId())) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+    /////////////////////////////////////////////////////////////////////
+    this.sessionRecordCount = function() {
+        return sessionTable.query().length;    
+    }
+
+    /////////////////////////////////////////////////////////////////////
   	this.close = function() {
-  		datastoreManager.close();
+        if (datastoreManager)
+  		    datastoreManager.close();
   	}
     /////////////////////////////////////////////////////////////////////
     var datastoreEventHandler = function(callback){
@@ -145,25 +230,100 @@ myApp.service("dbService", function($location,$q,safeApply,$rootScope) {
         datastore.recordsChanged.addListener(fn);
         return fn;
     }
-	////////////////////////////////////////////////////////////////////////////  
+    ////////////////////////////////////////////////////////////////////////////  
+    // Converts the session table from an array of Dropbox datastore records (returned by a query) into
+    // an array of objects containing the fields from the records. 
+    this.sessionToObjectArray = function() {
+        var start = new Date().getTime();
+        var sessions = sessionTable.query();
+        var end = new Date().getTime();
+        console.log("sessions elapsed time: ", end-start);
+        var oArray = [];
+        start = new Date().getTime();
+        sessions.forEach(function(session) {
+            var sessionFields = session.getFields();
+            var trials = sessionFields.trials.toArray();
+            sessionFields.trials = gauss.Vector();
+            trials.forEach(function(trial) {
+                sessionFields.trials.push(JSON.parse(trial));
+
+            // Calculate fields on the session from the trial data. 
+            })
+            sessionFields.trials = trials;
+            oArray.push(sessionFields);
+        })
+        end = new Date().getTime();
+        console.log("convert to array elapsed time: ", end-start);
+       
+        return oArray;
+    }
+    ////////////////////////////////////////////////////////////////////////////  
 	this.addSessions = function(sessions) {
+
+		console.log("Adding sessions");
 		for(var i=0; i < sessions.length; i++){
-			this.addSession(sessions[i]);
+			self.addSession(sessions[i]);
 		}
+		console.log("Finished adding sessions");
+	}
+	////////////////////////////////////////////////////////////////////////////  
+	this.backgroundAddSessions = function(sessions) {
+		console.log("Started background adding of sessions");
+		var deferred = $q.defer();
+		var index = 0;
+		function enQueueNext() {
+			$timeout(function() {
+            	// Process the element at "index"
+				console.log("Processing a session:", index );
+				self.addSession(sessions[index]);
+                deferred.notify({ idx: index, max: sessions.length})
+
+				index++;
+				if (index < sessions.length)
+					enQueueNext();
+				else
+				{
+					// We're done; resolve the promiss
+					console.log("Finished background adding of sessions");
+					deferred.resolve({ idx: index, max: sessions.length});
+				}
+			},0);
+		}
+		// Start off the process
+		enQueueNext();
+		return deferred.promise;
 	}
 	//////////////////////////////////////////////////////////////////////////////
 	this.addTrials = function(sessionId, trials) {
 
 		for(var i=0; i < trials.length; i++){
-			this.addTrial(sessionId, trials[i]);
+			self.addTrial(sessionId, trials[i]);
 		}
+
 	}
 	/////////////////////////////////////////////////////////////////////
     this.addTrial = function( sessionId, trial ) {
-    }
+  
+    	var trialRecord = trialTable.insert({
+    			sessionid: 		sessionId,
+    			problem: 		trial.problem,
+    			answer: 		trial.answer,
+    			latency: 		trial.latency,
+    			latencyptile: 	trial.latencyptile,
+    			include: 		trial.include,
+    			correct: 		trial.correct,
+    			warmup: 		trial.warmup,
+    			correction: 	trial.correction
+    		}); 
+
+    	return trialRecord;
+  }
     /////////////////////////////////////////////////////////////////////
     this.addSession = function( session ) {
-    	// Start transaction
+
+    	console.log("session:", session );
+    
+    //	console.log("notes:" session.notes );
 
     	var sessionRecord = sessionTable.insert({
                         notes: 			session.notes,
@@ -174,13 +334,14 @@ myApp.service("dbService", function($location,$q,safeApply,$rootScope) {
                         testtype: 		session.testtype,
                         testversion: 	session.testversion,
                         delay: 		    session.delay,
-                        duration:       session.duration
+                        duration:       session.duration,
+                        trials:         session.trials
                     });
 
     	// Insert the trial records along with a sessionRecord id
-    	this.addTrials( sessionRecord.getId(), trials );
-
-    	// End transaction
+ //   	this.addTrials( sessionRecord.getId(), session.trials );
+//console.log("added Session record: ", sessionRecord.getId() );
+    	return sessionRecord;
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -189,7 +350,9 @@ myApp.service("dbService", function($location,$q,safeApply,$rootScope) {
         if (this.isAuthenticated() == true)
             $location.path(url);
         else
-            this.authenticate();
+            this.authenticate().then(function() {
+                // Success
+            });
     }
     ////////////////////////////////////////////////////////////////////////////
     function basicDeferredCallback(deferred, cmdName){
@@ -324,6 +487,7 @@ myApp.service("dbService", function($location,$q,safeApply,$rootScope) {
     	// Check the header row values and make sure it matches what comes out of newmath5 (i.e. format hasn't changed)
 
     	// While grouping the trials under a session. 
+    	// start at 1 to skip over the header
     	for(var i=1; i<trials.length-1; i++) {
     		var trialArr = trials[i];
     		
@@ -331,37 +495,50 @@ myApp.service("dbService", function($location,$q,safeApply,$rootScope) {
     		if (trialArr[2] != notes) {
     			notes = trialArr[2];
 
-    			// Save the current session
-    			sessions.push( session );
+    			// Save the current session (unless we are just starting)
+    			if (i != 1)
+    				sessions.push( session );
 
     			// Start a new Session
     			session={};
-    			session.notes = notes;
+    			session.notes = notes.substr(17); // Remove the leading date from the string
     			session.starttime = this.parseDateFromR(trialArr[1]);
     			session.minlatency = 150;
     			session.maxlatency = 3000;
     			session.testtype = "SETH";
     			session.testversion = 1;
-    			session.delay = trialArr[4];
+    			session.delay = Math.round(trialArr[4]);
     			session.trials = [];
     		} 
     		
     		// Additional session info based on last trial of a session processed 
     		session.endtime = this.parseDateFromR(trialArr[1]);
-			session.duration = (session.endtime - session.starttime + trialArr[6])/1000;
+            session.duration = Math.round(((session.endtime - session.starttime )/1000));
 			// Add this trial to the current session
 			trial = {};
-			trial.idx         = trialArr[3];
-			trial.problem     = trialArr[5];
-			trial.answer      = trialArr[8];
-			trial.latencymsec = trialArr[6];
-			trial.latencyptile= trialArr[7];
-			trial.include     = (trialArr[10] == "TRUE");
-			trial.correct     = (trialArr[9]  == "TRUE");  
-			trial.warmup      = (trialArr[11] == "warmup");
-			trial.correction  = (trialArr[11] == "correction trial")
-			session.trials.push(trial);
-			
+			trial.i         = trialArr[3];           // index
+            trial.p     = trialArr[5];               // problem
+            trial.a      = trialArr[8];              // answer
+            trial.l     = Math.round(trialArr[6]);   // latency
+            if (trialArr[10] == "TRUE")              // include
+                trial.n     = true;           
+            if (trialArr[9]  == "TRUE")              // correct
+                trial.c     = true; 
+            if (trialArr[11] == "warmup")            // warmup
+                trial.w      = true;
+            if (trialArr[11] == "correction trial")  // correction
+                trial.x  = true;
+            /*trial.idx         = trialArr[3];
+            trial.problem     = trialArr[5];
+            trial.answer      = trialArr[8];
+            trial.latency     = Math.round(trialArr[6]);
+            trial.include     = (trialArr[10] == "TRUE");
+            trial.correct     = (trialArr[9]  == "TRUE");  
+            trial.warmup      = (trialArr[11] == "warmup");
+            trial.correction  = (trialArr[11] == "correction trial")
+            */session.trials.push(JSON.stringify(trial));
+            //session.trials.push(trial);
+            
     		// Make sure "when" column is in ascending order
     		if (when != null) {
     			if (when > trial[2]) {
@@ -377,7 +554,7 @@ myApp.service("dbService", function($location,$q,safeApply,$rootScope) {
   	}
   	////////////////////////////////////////////////////////////////////////////  
   	this.parseDateFromR = function( datetime ) {
-  		
+
   		var digitpattern = /^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})(.*)/
   		var matches = datetime.match(digitpattern);
 

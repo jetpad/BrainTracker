@@ -14,7 +14,7 @@
     <div class="col-lg-4">  
       <h2>View your results</h2>
       <p>View the results of your tests (non-functional).</p>
-      <button type="button" class="btn btn-primary" ng-click="dbService.authenticatedNavigate('/results/')">
+      <button type="button" class="btn btn-primary" ng-click="dbService.authenticatedNavigate('/report/')">
         <div>{{(dbService.isAuthenticated() == true) ? "Display test results &raquo;" : "Connect to Dropbox &raquo;"}}</div>
       </button>
     </div>

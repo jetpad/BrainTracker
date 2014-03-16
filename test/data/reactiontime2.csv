@@ -1,0 +1,7 @@
+"","when","condition","trial","foreperiod.msec","problem","latency.msec","latency.ptile","actual.answer","correct","include","note"
+"481011","2013-12-23 17:13:18","2013-12-23 17:08  blood sugar 93 piece of tea cookie 1 hr ago black tea noon",31,1500,"5",280,80.7978125,"5",TRUE,FALSE,""
+"491011","2013-12-23 17:13:23","2013-12-23 17:08  blood sugar 93 piece of tea cookie 1 hr ago black tea noon",32,1500,"4",312,71.3215625,"4",TRUE,FALSE,""
+"2","2013-12-23 13:27:30","2013-12-23 13:26 warmup",1,1500,"2",1402,NA,"1",FALSE,FALSE,"illegal character"
+"3","2013-12-23 13:27:51","2013-12-23 13:26 warmup",1,1500,"2",11516,NA,"2",TRUE,FALSE,"too slow"
+"4","2013-12-23 13:27:58","2013-12-23 13:26 warmup",1,1500,"2",1301,NA,"1",FALSE,FALSE,"illegal character"
+"5","2013-12-23 13:28:07","2013-12-23 13:26 warmup",1,1500,"2",2413,NA,"2",TRUE,FALSE,"correction trial"

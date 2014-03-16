@@ -8,45 +8,31 @@ describe('dropbox', function () {
 	var isSignedOut = false;
 	var _datastore;
 	var dbRecord = null;
-	var key = '{"key":"46tjf8x15q98xic","token":"S7px_3au_vkAAAAAAAAAAWtz8ZbnJocACTAZD1UvoDwkrPbJCyK-EGkifs3OhDXk","uid":"1407454"}';
-	
-	beforeEach(function(done) {
+	var key = 'dropbox-auth:default:cHKvNCKVzU7Jmnyaj1InU8TBCOc';
+	var value = '{"key":"46tjf8x15q98xic","token":"m1RVM7yAO28AAAAAAAAAAZxH1z9cXzgHfu64dmbLHxGQLd2kgKb9FajJ6xNii55Y","uid":"1407454"}';
 
-		localStorage.setItem('dropbox-auth:default:cHKvNCKVzU7Jmnyaj1InU8TBCOc', key );
+	beforeEach(inject(function (dbService) {
+		localStorage.setItem( key, value );
+		db = dbService;
+		this.csvImport = "";
+	}));
 
-		client = new Dropbox.Client({key: '46tjf8x15q98xic'});
-		// Try to finish OAuth authorization.
-		client.authenticate({interactive: false}, function (error) {
-		    if (error) {
-		        alert('Authentication error: ' + error);
-		    }
-		});
+	afterEach(function() {
+		db.close();
+	});
 
-	    if (client.isAuthenticated()) {
+	xit('insert session', function() {
+		sessionTable = datastore.getTable('session');
 
-			client.getDatastoreManager().openDefaultDatastore(function (error, datastore) {
-	    		if (error) {
-	       		 	alert('Error opening default datastore: ' + error);
-	    		}
-	    		datastoreIsOpen = true;
-
-	    		sessionTable = datastore.getTable('session');
-
-	    		_datastore = datastore;
-
-	    		dbRecord = sessionTable.insert({
-                        description: "Description",
-                        starttime: new Date,
-                        endtime: new Date,
-                        minlatency: 100,
-                        maxlatency: 200,
-                        durationmsec: 4
-                    });
-	    		//console.log("After added sessions");
-	    		done();
-	    	});
-	    }		
-	   // waitsFor(function() { return datastoreIsOpen }, 5000); 
+		dbRecord = sessionTable.insert({
+                description: "Description",
+                starttime: new Date,
+                endtime: new Date,
+                minlatency: 100,
+                maxlatency: 200,
+                durationmsec: 4
+            });
+		//console.log("After added sessions");
 	});
 
 	xit('client is not null', function() {

@@ -10,6 +10,16 @@ myApp.config(function($routeProvider, $locationProvider) {
       when('/about', {
         templateUrl: 'views/about.html',
       }).      
+      when('/import', {
+        templateUrl: 'views/import.html',
+      }).      
+      when('/report', {
+        templateUrl: 'views/session-report.html',
+        controller: 'SessionsReportControl'
+      }).      
+      when('/testreport', {
+        templateUrl: 'views/testreport.html',
+      }).      
       when('/signout', {
         templateUrl: 'views/signout.html',
       }).
