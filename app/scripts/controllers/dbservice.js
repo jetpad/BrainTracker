@@ -248,6 +248,7 @@ myApp.service("dbService", function($location,$q,safeApply,$rootScope,$timeout) 
                 sessionFields.trials.push(JSON.parse(trial));
 
             // Calculate fields on the session from the trial data. 
+            // And other stuff
             })
             sessionFields.trials = trials;
             oArray.push(sessionFields);
