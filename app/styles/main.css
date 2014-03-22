@@ -23,6 +23,7 @@ body {
   	padding-right: 0px;
     padding-top: 0px;
     padding-bottom: 0px;
+    background-color: white;
 }
 
   .container .jumbotron {
@@ -64,7 +65,7 @@ body {
 
 .reaction-session .prompt {
       text-align: center;
-      padding-top: 90px;
+      padding-top: 10px;
       font-weight: normal;
       font-size: 48px; }
 

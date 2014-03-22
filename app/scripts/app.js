@@ -22,6 +22,9 @@ myapp.controller('MainCtrl', function ($scope) {
 };
 */
 
+
+
+
 myApp.directive('onReadFile', function ($parse) {
   return {
     restrict: 'A',

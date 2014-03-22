@@ -12,6 +12,8 @@ var sessions = null;
 var trialRecord = null;
 var sessionRecord = null;
 
+jasmine.DEFAULT_TIMEOUT_INTERVAL = 15000;
+
 describe('Services: ', function () {
 
 	describe('dbService: ', function() {
@@ -109,17 +111,17 @@ describe('Services: ', function () {
 			xhr.send();
 			//console.log(xhr.status, xhr.responseText); //200, {...}
 			csvText = xhr.responseText;
-			expect( csvText.length ).toEqual( 489762 );
+			expect( csvText.length ).toEqual( 540119 );
 		});
 
 		it('convert CSV into array', function() {	
 			csvArr = db.CSVToArray( csvText );  
-			expect( csvArr.length ).toEqual( 4011 );
+			expect( csvArr.length ).toEqual( 4365 );
 		});	
 
 		it('parse trials array into sessions', function() {	
 			sessions = db.parseTrialstoSessions( csvArr );
-			expect( sessions.length ).toEqual( 158 );
+			expect( sessions.length ).toEqual( 172 );
 		});	
 
 		it('get datastore table and check the id', function(done10) {	

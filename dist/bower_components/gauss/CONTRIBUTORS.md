@@ -6,3 +6,5 @@ Fredrick Galoso
 
 #Contributors
 Philip Tellis - Yahoo!
+
+Sam Day - Atlassian

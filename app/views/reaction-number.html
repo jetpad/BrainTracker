@@ -1,14 +1,6 @@
 <div ng-controller="ReactionTimeCtrl">
-
   <div class="reaction-session" ng-class="'view-' + test.getView()">
-
-    <div ng-switch on="test.getView()"  class="fill" 
-    hm-touch="test.clickedBg()" hm-tap="">
-
-      <div class="session-progress">
-        <div class="session-average">Average: {{test.getAverage() | number:0}} ms</div>
-        <div class="session-tries"></div>
-      </div>
+    <div ng-switch on="test.getView()" >
 
       <h4 class="prompt">
         <span class="number-big" ng-class="test.getNumberClass(2)" hm-touch="test.clickedNumber('2')" hm-tap="">2</span>
@@ -23,7 +15,6 @@
       <div ng-switch-when="splash" ng-shortcut="'5'" ng-shortcut-action="test.clickedNumber('0')">
         <h3>
           <div>&nbsp;</div>
-          <div>&nbsp;</div>
         </h3>
         <h3>
           <div>Press <b>5</b> to start.</div>
@@ -34,7 +25,6 @@
       <div ng-switch-when="waiting">
       <h3>
           <div>&nbsp;</div>
-          <div>&nbsp;</div>
         </h3>
         <h3 >
           <div>wait...</div>
@@ -44,7 +34,6 @@
 
       <div ng-switch-when="go" ng-shortcut="'1|2|3|4|5|6|7|8|9'" ng-shortcut-action="test.clickedNumber()"> 
         <h3>
-          <div>&nbsp;</div>
           <div>&nbsp;</div>      
         </h3>
         <h3>
@@ -55,7 +44,6 @@
 
       <div ng-switch-when="result" ng-shortcut="'5'" ng-shortcut-action="test.clickedNumber()">
         <h3>
-          <div>&nbsp;</div>
           <div>{{test.currentTrial.latency | number:0}} ms</div>
         </h3>
         <h3>
@@ -66,7 +54,6 @@
 
       <div ng-switch-when="too-fast" ng-shortcut="'5'" ng-shortcut-action="test.clickedNumber()">
         <h3>
-          <div>&nbsp;</div>
           <div>Too soon!</div>
          </h3>
         <h3>
@@ -77,7 +64,6 @@
 
       <div ng-switch-when="too-slow" ng-shortcut="'5'" ng-shortcut-action="test.clickedNumber()">
         <h3>
-          <div>&nbsp;</div>
           <div>Too slow!</div>
         </h3>
         <h3>
@@ -88,7 +74,6 @@
 
       <div ng-switch-when="wrong-number" ng-shortcut="'5'" ng-shortcut-action="test.clickedNumber()">
         <h3>
-          <div>&nbsp;</div>
           <div>{{test.currentTrial.latency | number:0}} ms</div>
         </h3>
         <h3>
@@ -97,26 +82,19 @@
         </h3>
       </div>
 
-      <div ng-switch-when="session-ended" ng-shortcut="'5'" ng-shortcut-action="test.clickedNumber()">
+      <div ng-switch-when="session-complete" ng-shortcut="'5'" ng-shortcut-action="test.clickedNumber()">
         <h3>
-          <div>&nbsp;</div>
-          <div>{{test.currentTrial.latency | number:0}} ms</div>
+          <div>session completed</div>
         </h3>
         <h3>
-          <div>session ended</div>
-          <div>press <b>5</b> to start again</div>
+          <div>Your average latency was {{test.getAverage() | number:0}} ms</div>
+          <div>press <b>5</b> to save the session</div>
         </h3>
-      </div>
-
-      <div ng-switch-when="saving" >
-        <h4 class="prompt">
-          <div>Saving... </div>
-        </h4>
       </div>
 
       <div class="progress-bar-container">
         <progressbar class="session-progress-bar"  animate="false" 
-       value="test.getValidTrials()" max="test.getMaxTrials()" type="success"></progressbar>
+       value="test.getValidTrials()" max="test.getMaxTrials()" type="success"><div>{{test.getValidTrials()}} of {{test.getMaxTrials()}}</div></progressbar>
       </div>
 
       <div class='wrapper text-center'>
@@ -125,14 +103,11 @@
                   ng-shortcut-action="test.cancelLastTrial()" ng-click="test.cancelLastTrial()"><u>C</u>ancel Last Trial</button>
           <button type="button" class="btn btn-default" ng-shortcut="'e'" 
                   ng-shortcut-action="test.endSession()" ng-click="test.endSession()"><u>E</u>nd Session</button>
-          <button id="savebutton" type="button" class="btn btn-default" ng-shortcut="'s'"  
-                  ng-click="test.saveSession()" ng-shortcut-action="test.saveSession()"><u>S</u>ave Session</button>
-          <button id="helloButton" type="button" class="btn btn-default" ng-shortcut="'h'"  
-                  ng-click="test.hello('David')" ng-shortcut-action="test.hello('David')">
-                  <u>H</u>ello</button>
                   <div>{{test.message}}</div>
         </div>
+        <br/>&nbsp;<br/>&nbsp;<br/>
       </div>       
     </div>
   </div>
 </div>
+

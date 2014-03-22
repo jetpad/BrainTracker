@@ -1,6 +1,12 @@
 'use strict';
 
-myApp.service("dbService", function($location,$q,safeApply,$rootScope,$timeout) {
+// .include     - To be used in calculating the statistics of a session
+//              - NOT-warmup, NOT-correction, correct and counted toward the max trials. 
+// .correction  - Trials after a incorrect answer are flagged with this until the next problem
+// .warmup      - practice trials not included with statistic calculations (because not saved to the datastore)
+// .correct     - user answered with the same number as the problem for the trial. 
+
+myApp.service("dbService", function($location,$q,safeApply,$rootScope, $timeout) {
 
 	var client;
     var datastore = null;
@@ -8,6 +14,7 @@ myApp.service("dbService", function($location,$q,safeApply,$rootScope,$timeout) 
     var sessionTable = null;
     var trialTable = null;
     var self = this;
+    var sessionRecords = null;
 
 	////////////////////////////////////////////////////////////////////////////
     this.initialize = function() {
@@ -17,6 +24,10 @@ myApp.service("dbService", function($location,$q,safeApply,$rootScope,$timeout) 
         console.log("Initialize");
 	    return self.authenticate({interactive: false});
     }  
+    ////////////////////////////////////////////////////////////////////////////
+    this.sessions = function() {
+        return sessionRecords;
+    }
 	////////////////////////////////////////////////////////////////////////////
 	this.isAuthenticated = function() {
     	return client.isAuthenticated();
@@ -111,6 +122,8 @@ myApp.service("dbService", function($location,$q,safeApply,$rootScope,$timeout) 
             }
         }
 
+        var start = new Date().getTime();
+       
         datastoreManager.openDefaultDatastore( function(error, _datastore) {
             safeApply($rootScope, function() {
                 if (error) {
@@ -119,6 +132,9 @@ myApp.service("dbService", function($location,$q,safeApply,$rootScope,$timeout) 
                 }
                 else {
                     console.log("successfully opened default datastore");
+                    var end = new Date().getTime();
+                    console.log("Time to get datastore: ", (end-start), " (ms)");
+                    
                     datastore = _datastore;
                     self.openTables();
                     deferred.resolve(_datastore); 
@@ -173,17 +189,23 @@ myApp.service("dbService", function($location,$q,safeApply,$rootScope,$timeout) 
   	/////////////////////////////////////////////////////////////////////
   	this.openTables = function() {
 		sessionTable = datastore.getTable('session');
-	  
-	   // console.log("sessionTable: ", sessionTable );
-	   // console.log("trialTable: ", trialTable );
+
+        var start = new Date().getTime();
+        var sessions = sessionTable.query();
+        var end = new Date().getTime();
+        console.log("sessions elapsed time: ", end-start);
+        sessionRecords = self.sessionToObjectArray(sessions) ;
+	    $rootScope.$broadcast("sessionDataChanged");
 
 		self.subscribeRecordsChanged( function(records) {
 			console.log('a session record has changed: ', records.length );
-		}, 'session' );
 
-        self.subscribeRecordsChanged( function(records) {
-	//		console.log('a trial record has changed: ', records );
-		}, 'trial' );
+            // insert the session into $scope.sessions 
+            sessionRecords = sessionRecords.concat( self.sessionToObjectArray(records) );
+
+            // and signal to the report and chart that there are new records
+            $rootScope.$broadcast("sessionDataChanged");
+		}, 'session' );
 	}
     /////////////////////////////////////////////////////////////////////
     // True when the database objects are fully initialized
@@ -198,7 +220,10 @@ myApp.service("dbService", function($location,$q,safeApply,$rootScope,$timeout) 
     }
     /////////////////////////////////////////////////////////////////////
     this.sessionRecordCount = function() {
-        return sessionTable.query().length;    
+        if (sessionTable === null)
+            return 0;
+        else
+            return sessionRecords.length;    
     }
 
     /////////////////////////////////////////////////////////////////////
@@ -233,27 +258,21 @@ myApp.service("dbService", function($location,$q,safeApply,$rootScope,$timeout) 
     ////////////////////////////////////////////////////////////////////////////  
     // Converts the session table from an array of Dropbox datastore records (returned by a query) into
     // an array of objects containing the fields from the records. 
-    this.sessionToObjectArray = function() {
-        var start = new Date().getTime();
-        var sessions = sessionTable.query();
-        var end = new Date().getTime();
-        console.log("sessions elapsed time: ", end-start);
+    this.sessionToObjectArray = function(sessions) {
+        var Vector = gauss.Vector;
         var oArray = [];
-        start = new Date().getTime();
-        sessions.forEach(function(session) {
-            var sessionFields = session.getFields();
-            var trials = sessionFields.trials.toArray();
-            sessionFields.trials = gauss.Vector();
-            trials.forEach(function(trial) {
-                sessionFields.trials.push(JSON.parse(trial));
-
-            // Calculate fields on the session from the trial data. 
-            // And other stuff
-            })
-            sessionFields.trials = trials;
-            oArray.push(sessionFields);
-        })
-        end = new Date().getTime();
+        var start = new Date().getTime();
+        for(var s=0;s<sessions.length;s++) {
+            var session = sessions[s].getFields();
+            var jsontrials = session.trials.toArray();
+            var trials = new Vector();
+            for(var i=0;i<jsontrials.length;i++){
+                trials.push(JSON.parse(jsontrials[i]));
+            }
+            session.trials = trials;
+            oArray.push(session);
+        }
+        var end = new Date().getTime();
         console.log("convert to array elapsed time: ", end-start);
        
         return oArray;
@@ -263,7 +282,7 @@ myApp.service("dbService", function($location,$q,safeApply,$rootScope,$timeout) 
 
 		console.log("Adding sessions");
 		for(var i=0; i < sessions.length; i++){
-			self.addSession(sessions[i]);
+    	   self.addSession(sessions[i]);
 		}
 		console.log("Finished adding sessions");
 	}
@@ -275,8 +294,8 @@ myApp.service("dbService", function($location,$q,safeApply,$rootScope,$timeout) 
 		function enQueueNext() {
 			$timeout(function() {
             	// Process the element at "index"
-				console.log("Processing a session:", index );
-				self.addSession(sessions[index]);
+ 				console.log("Processing a session:", index );
+              	self.addSession(sessions[index]);
                 deferred.notify({ idx: index, max: sessions.length})
 
 				index++;
@@ -323,26 +342,39 @@ myApp.service("dbService", function($location,$q,safeApply,$rootScope,$timeout) 
     this.addSession = function( session ) {
 
     	console.log("session:", session );
-    
-    //	console.log("notes:" session.notes );
 
-    	var sessionRecord = sessionTable.insert({
+        // Calculate the mean latency
+        session.latency = Math.round( session.trials
+            .find( {n: true} )
+            .map(function(trial) { return trial.l })
+            .mean());
+
+console.log("latency: ", session.latency );
+
+        // convert trial array objects to strings
+        var trials = [];
+        for(var i=0;i < session.trials.length; i++)
+            trials.push(JSON.stringify(session.trials[i]));
+
+        if (!isNaN(session.latency)) { // Only add non-warmup trials
+           	var sessionRecord = sessionTable.insert({
                         notes: 			session.notes,
                         starttime: 		session.starttime,
                         endtime: 		session.endtime,
+                        latency:        session.latency,
                         minlatency: 	session.minlatency,
                         maxlatency: 	session.maxlatency,
                         testtype: 		session.testtype,
                         testversion: 	session.testversion,
                         delay: 		    session.delay,
                         duration:       session.duration,
-                        trials:         session.trials
+                        trials:         trials
                     });
 
-    	// Insert the trial records along with a sessionRecord id
- //   	this.addTrials( sessionRecord.getId(), session.trials );
-//console.log("added Session record: ", sessionRecord.getId() );
-    	return sessionRecord;
+        	return sessionRecord;
+        }
+        else
+            return null;
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -351,9 +383,18 @@ myApp.service("dbService", function($location,$q,safeApply,$rootScope,$timeout) 
         if (this.isAuthenticated() == true)
             $location.path(url);
         else
-            this.authenticate().then(function() {
-                // Success
+        {
+            // Not authenticated
+            client.reset();
+            this.authenticate({interactive: true}).then(function() {
+                console.log("authenticated successs");
+            }, 
+            function(error){
+                console.log('error authenticating({interactive: true}): ' + error); 
+               // client.reset();
+                this.initialize();
             });
+        }
     }
     ////////////////////////////////////////////////////////////////////////////
     function basicDeferredCallback(deferred, cmdName){
@@ -382,16 +423,16 @@ myApp.service("dbService", function($location,$q,safeApply,$rootScope,$timeout) 
         else {
 	        new function(){ 
 	        	var deferred = $q.defer();
+                sessionTable = null;
+                $location.path("/signout");
 	    	    client.signOut({mustInvalidate: true}, basicDeferredCallback(deferred, 'signOut'));
 	        	return deferred.promise;
 	        }().then(function() {
 	        	// Success
 	        	console.log("signing out");
-	        	$location.path("/signout");
 	        }, function() {
 	        	// Failure - still redirect to signout page
 	        	console.log("Error signing out");
-	        	$location.path("/signout");
 	        });
 		}  
     } // End of signout
@@ -473,13 +514,14 @@ myApp.service("dbService", function($location,$q,safeApply,$rootScope,$timeout) 
     	return( arrData );
     }
     ////////////////////////////////////////////////////////////////////////////  
-	this.parseTrialstoSessions = function(trials) {
+	this.parseTrialstoSessions = function(rawTrials) {
 
 		//var trials = this.CSVToArray(csv);
 		var sessions=[];
 		var session={};
 		var when,notes;
 		var trial={};
+        var Vector = gauss.Vector;
 		
 		// Dump some of it
    // 	for(var i=0; i<20; i++)
@@ -489,8 +531,8 @@ myApp.service("dbService", function($location,$q,safeApply,$rootScope,$timeout) 
 
     	// While grouping the trials under a session. 
     	// start at 1 to skip over the header
-    	for(var i=1; i<trials.length-1; i++) {
-    		var trialArr = trials[i];
+    	for(var i=1; i<rawTrials.length-1; i++) {
+    		var trialArr = rawTrials[i];
     		
     		// Are we starting a new session?
     		if (trialArr[2] != notes) {
@@ -509,7 +551,7 @@ myApp.service("dbService", function($location,$q,safeApply,$rootScope,$timeout) 
     			session.testtype = "SETH";
     			session.testversion = 1;
     			session.delay = Math.round(trialArr[4]);
-    			session.trials = [];
+    			session.trials = new Vector();
     		} 
     		
     		// Additional session info based on last trial of a session processed 
@@ -517,9 +559,9 @@ myApp.service("dbService", function($location,$q,safeApply,$rootScope,$timeout) 
             session.duration = Math.round(((session.endtime - session.starttime )/1000));
 			// Add this trial to the current session
 			trial = {};
-			trial.i         = trialArr[3];           // index
+			//trial.i     = trialArr[3];           // index
             trial.p     = trialArr[5];               // problem
-            trial.a      = trialArr[8];              // answer
+            trial.a     = trialArr[8];              // answer
             trial.l     = Math.round(trialArr[6]);   // latency
             if (trialArr[10] == "TRUE")              // include
                 trial.n     = true;           
@@ -529,25 +571,23 @@ myApp.service("dbService", function($location,$q,safeApply,$rootScope,$timeout) 
                 trial.w      = true;
             if (trialArr[11] == "correction trial")  // correction
                 trial.x  = true;
-            /*trial.idx         = trialArr[3];
-            trial.problem     = trialArr[5];
-            trial.answer      = trialArr[8];
-            trial.latency     = Math.round(trialArr[6]);
-            trial.include     = (trialArr[10] == "TRUE");
-            trial.correct     = (trialArr[9]  == "TRUE");  
-            trial.warmup      = (trialArr[11] == "warmup");
-            trial.correction  = (trialArr[11] == "correction trial")
-            */session.trials.push(JSON.stringify(trial));
-            //session.trials.push(trial);
+   
+   //         session.trials.push(JSON.stringify(trial));
+              session.trials.push(trial);
             
     		// Make sure "when" column is in ascending order
-    		if (when != null) {
-    			if (when > trial[2]) {
+    		/*
+            if (when != null) {
+    			if (when > trialArr[1]) && (i > 0) {
     				console.log("Error: 'when' column is not in ascending order.");
     			}
     		}
-    		when = trial[2];
-  		}
+    		when = trialArr[1];
+  		    */
+        }
+
+      //  console.log("Latency: ", session.latency );
+            
   		// Save the last session
   		sessions.push(session);
   		
@@ -559,7 +599,7 @@ myApp.service("dbService", function($location,$q,safeApply,$rootScope,$timeout) 
   		var digitpattern = /^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})(.*)/
   		var matches = datetime.match(digitpattern);
 
-  		return new Date(Number(matches[1]),Number(matches[2]),Number(matches[3]),Number(matches[4]),Number(matches[5]),Number(matches[6]))
+  		return new Date(Number(matches[1]),Number(matches[2]-1),Number(matches[3]),Number(matches[4]),Number(matches[5]),Number(matches[6]))
   	}
 
 	////////////////////////////////////////////////////////////////////////////  

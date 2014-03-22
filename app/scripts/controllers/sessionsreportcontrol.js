@@ -3,20 +3,18 @@
 myApp.controller( "SessionsReportControl", function($scope, $rootScope, $filter, $timeout, $q, $http,$location, 
 	safeApply, ngTableParams, dbService) {
 
-	$scope.$watch("dbIsReady", function(newValue, oldValue, scope) {   
-    	console.log("dbIsReady changed: ", newValue, oldValue, scope );
-    	if (newValue != oldValue) {
-    		$scope.tableParams.reload();        
-    	}
-	})
+    $scope.$on("sessionDataChanged", function() {
+        console.log("Updating Report");
+        $scope.tableParams.reload();        
+    });
 
 	var getData = function() {
-		return ($scope.sessions) ? $scope.sessions : [];
+		return ($scope.dbService.sessions()) ? $scope.dbService.sessions() : [];
 	};
 	
 	$scope.tableParams = new ngTableParams({
             page:   1,                  // show first page
-            count: 10,                // count per page
+            count: 10,                  // count per page
             sorting: {
             	name: 'asc'     // initial sorting
         	}

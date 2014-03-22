@@ -14,6 +14,9 @@ both on Node.js and within the web browser.
 ## License
 MIT/X11 - See [LICENSE][2]
 
+## Support
+Mailing list - [Google Group](https://groups.google.com/forum/?pli=1#!forum/gaussjs)
+
 [2]: http://github.com/wayoutmind/gauss/blob/master/LICENSE
 
 ## Getting started
@@ -28,19 +31,9 @@ Getting started with Gauss + Node.js is easy:
 var gauss = require('gauss');
 ```
 
-### Installing development dependencies and running tests
-
-To run Gauss's tests you'll need [Vows](http://vowsjs.org/). NPM can automatically resolve this:
-
-    $ npm install gauss --devel
-
-To invoke the tests:
-
-    $ npm test
-
 ### Using Gauss within a web browser
 
-Gauss requires support for ECMAScript 5 `Object.defineProperties`. Compatibility is listed [here](http://kangax.github.com/es5-compat-table/). Download and include [gauss.min.js](https://raw.github.com/wayoutmind/gauss/master/gauss.min.js):
+Gauss requires support for ECMAScript 5 `Object.defineProperty`. Compatibility is listed [here](http://kangax.github.com/es5-compat-table/). Download and include [gauss.min.js](https://raw.github.com/wayoutmind/gauss/master/gauss.min.js):
 
 ``` html
 <script src="gauss.min.js" type="text/javascript"></script>
@@ -53,9 +46,34 @@ Gauss requires support for ECMAScript 5 `Object.defineProperties`. Compatibility
 </script>
 ```
 
-## API
+The [Bower](http://bower.io/) package manager can also be used to install Gauss:
 
-Gauss has methods for univariate (Vector) and time series (TimeSeries) analysis. We're constantly working on adding more functions, adding multivariate statistics, and we encourage additions to the library. Accuracy is a primary concern. If Gauss is returning incorrect results, [please submit an issue](https://github.com/wayoutmind/gauss/issues) and/or [submit a patch](https://github.com/wayoutmind/gauss#fork_box)!
+    $ bower install gauss
+
+Gauss is also [Asynchronous Module Definition](http://requirejs.org/docs/whyamd.html) compatible and
+works with module loaders like [RequireJS](http://requirejs.org):
+
+``` html
+<script async src="gauss.min.js"></script>
+<script>
+    require(['gauss'], function(gauss) {
+        var Collection = gauss.Collection,
+            distribution = new Collection(1, 2, 3).distribution();
+    });
+</script>
+```
+
+### Installing development dependencies and running tests
+
+To run Gauss's tests you'll need [Vows](http://vowsjs.org/). NPM can automatically resolve this:
+
+    $ npm install gauss --devel
+
+To invoke the tests:
+
+    $ npm test
+
+## API
 
 ### Instantiation
 
@@ -64,16 +82,31 @@ Gauss has methods for univariate (Vector) and time series (TimeSeries) analysis.
 var set = new gauss.Vector(5, 1, 3, 2, 21);
 // From a regular Array
 var numbers = new gauss.Vector([8, 6, 7, 5, 3, 0, 9]);
-// Convert an Array to a Vector with helper method toVector()
-var vanilla = [4, 1, 2, 5, 6];
-var chocolate = vanilla.toVector();
 // After instantiation, Gauss objects can be conveniently used like any Array
 numbers[0] = 2;
 set[1] = 7;
 ```
 
 *Note: To prevent unintended scope/prototype pollution, Gauss versions after 0.2.3 have [removed support for monkey patching](https://github.com/wayoutmind/gauss/issues/6) the native Array data type.
-Use the .toArray() method of any Gauss object to a convert to a vanilla Array. Gauss adds a toVector() convenience method to the Array prototype to facilitate converting to Vectors.*
+Use the .toArray() method of any Gauss object to a convert to a vanilla Array.*
+
+### Scope chaining
+
+Gauss collections utilize scope chaining for converting between collection types:
+
+``` javascript
+var Collection = gauss.Collection;
+var things = new Collection(
+    { type: 1, age: 1 },
+    { type: 2, age: 2 },
+    { type: 1, age: 3 },
+    { type: 2, age: 4 });
+things
+    .find({ type: 2 })
+    .map(function(thing) { return thing.age; })
+    .toVector() // Scope chained converter, converting mapped collection of ages to Vector
+    .sum();
+```
 
 ### Callbacks and method chaining
 
@@ -195,7 +228,7 @@ Returns the number of occurrences of value within a data set.
 
     .distribution(format, callback)
 
-Returns an `Object` containing the (frequency) distribution of values within the Collection. Default format: `absolute`; `relative` returns ratio of occurrences and total number of values in a data set. 
+Returns an `Object` containing the (frequency) distribution of values within the Collection. Default format: `absolute`; `relative` returns ratio of occurrences and total number of values in a data set.
 
 ``` javascript
 set.distribution();
@@ -249,7 +282,15 @@ var union = new Collection('a', 'b', 'c').union(['c', 'd', 'e']);
 > ['a', 'b', 'c', 'd', 'e']
 ```
 
+#### Collection.extend
+
+    .extend(methods, callback)
+
+Returns a Collection extended with named functions.
+
 ### Vector
+
+Extends *Collection* methods with numerical functions.
 
 #### Vector.min
 
@@ -392,7 +433,7 @@ Returns a Vector which is a percentile subset of values occurring within a data 
 
     .distribution(format, callback)
 
-Returns an `Object` containing the (frequency) distribution of values within the Vector. Default format: `absolute`; `relative` returns ratio of occurrences and total number of values in a data set. 
+Returns an `Object` containing the (frequency) distribution of values within the Vector. Default format: `absolute`; `relative` returns ratio of occurrences and total number of values in a data set.
 
 ``` javascript
 set.distribution();
@@ -570,7 +611,7 @@ set.extend({
     }
 });
 set.ddist('relative')
-> { 
+> {
     '1': 0.10526315789473684,
     '2': 0.05263157894736842,
     '3': 0.10526315789473684,
@@ -657,13 +698,13 @@ For example, using the `help()` function and analyzing a data file from the Gaus
 ``` javascript
 $ gauss
 gauss> help()
-Gauss 0.2.9
-   /* https://github.com/wayoutmind/gauss#api */ 
+Gauss 0.2.11
+   /* https://github.com/wayoutmind/gauss#api */
    Functions: print, inspect, cwd, clear, install, uninstall, help
    Usage:
      var set = new Vector(1, 2, 3);
      var times = new gauss.TimeSeries();
-{ version: '0.2.9',
+{ version: '0.2.10',
   Collection: [Function],
   Vector: [Function],
   TimeSeries: [Function] }

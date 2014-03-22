@@ -4,16 +4,16 @@
 	  	<ol>
 	  		<li>Run this command in R. <br/><br/>
 	  			<blockquote>
-	  				write.csv(file="ReactionTime.csv", x=newmath5)
+	  				<textarea rows="1" cols="50">write.csv(file="reactiontime.csv", x=newmath5)</textarea>
 	  			</blockquote>
 	  		</li>
-	  		<li>Select the ReactionTime.csv file you exported from R.
+	  		<li>Select the reactiontime.csv file you exported from R.
 					<br/><br/>
 					<input class="btn btn-default" type="file" on-read-file="showContent($content)" />
 					<br/>
 	  		</li>
 	  		<li>
-	  			Press: <button type="button" class="btn btn-default"  ng-disabled="(content == null) || (!dbReady())"
+	  			Press: <button type="button" class="btn btn-default"  ng-disabled="(content == null) || (!dbService.ready())"
                    ng-click="importCSV()">Import CSV File</button>
 	  		</li>
 	  	</ol> 
@@ -24,8 +24,7 @@
 
 		<div class="container">
 			<h2>CSV file content is:</h2>
-			<pre>{{ content }}</pre>
-			<textarea rows="10" cols="80">{{json}}</textarea>
+			<textarea rows="10" cols="80">{{content}}</textarea>
 	</p>
 </div>
 

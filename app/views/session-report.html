@@ -8,8 +8,14 @@
             <td data-title="'Notes'" sortable="notes">
                 {{session.notes}}
             </td>
-            <td data-title="'Start Time'" sortable="'starttime'">
-                {{session.starttime}}
+            <td data-title="'latency (ms)'" sortable="'latency'">
+                {{session.latency}}
+            </td>
+            <td data-title="'trials'" sortable="'session.trials.length'">
+                {{session.trials.length}}
+            </td>
+            <td data-title="'Time'" sortable="'starttime'">
+                {{session.starttime | date:'medium'}} {{session.starttime}}
             </td>
         </tr>
     </table>

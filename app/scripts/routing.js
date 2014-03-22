@@ -17,6 +17,10 @@ myApp.config(function($routeProvider, $locationProvider) {
         templateUrl: 'views/session-report.html',
         controller: 'SessionsReportControl'
       }).      
+      when('/chart', {
+        templateUrl: 'views/sessions-chart.html',
+        controller: 'SessionsChartControl'
+      }).      
       when('/testreport', {
         templateUrl: 'views/testreport.html',
       }).      
@@ -31,6 +35,9 @@ myApp.config(function($routeProvider, $locationProvider) {
      //   resolve:  {
      //       authenticate: mainCtrl.authenticate
      //   }
+      }).
+      when('/testcomplete', {
+        templateUrl: 'views/test-complete.html',
       }).
       otherwise({
         redirectTo: '/'

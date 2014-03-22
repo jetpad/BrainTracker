@@ -1,11 +1,11 @@
 <div class="well">
-    <h2>About Page</h2>
+    <h2>About Brain Reaction Time Tracker</h2>
     <p>
-	  	This is about the application.
+	  	Version ?.?
 		<div>{{(dbService.isAuthenticated() == true) ? "Authenticated" : "NOT-Authenticated"}}</div>
 		<div>{{(dbService.isDatastoreOpen() == true) ? "Datastore Open" : "Datastore Closed"}}</div>
-		<div>Sessions: {{sessionRecordCount()}}</div>
-		<div>Ready: {{dbReady()}}</div>
+		<div>Sessions: {{dbService.sessionRecordCount()}}</div>
+		<div>Ready: {{dbService.ready()}}</div>
 
 	</p>
 </div>

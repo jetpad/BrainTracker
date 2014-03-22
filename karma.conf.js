@@ -16,6 +16,8 @@ module.exports = function(config) {
       'app/bower_components/angular-mocks/angular-mocks.js',
       'app/bower_components/angular-route/angular-route.js',
       'app/bower_components/jquery/dist/jquery.js',
+      'app/bower_components/d3/d3.js',
+      'app/bower_components/gauss/gauss.min.js',
       'app/bower_components/angular-bootstrap/ui-bootstrap-tpls.js',
       'app/bower_components/dropbox-datastores-js/lib/dropbox-datastores-1.0.0.js',
       'app/scripts/*.js',

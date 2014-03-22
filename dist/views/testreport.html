@@ -1,0 +1,1 @@
+<div ng-controller="DemoCtrl"><h2>Dataset:<select ng-model="dataset" ng-options="ds for ds in datasets"></select></h2><table ng-table="tableParams" class="table"><tr ng-repeat="session in $data"><td data-title="'Notes'" sortable>{{session.notes}}<td data-title="'Start Time'" sortable>{{session.starttime}}</table></div>
