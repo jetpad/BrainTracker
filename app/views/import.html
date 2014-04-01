@@ -7,6 +7,11 @@
 	  				<textarea rows="1" cols="50">write.csv(file="reactiontime.csv", x=newmath5)</textarea>
 	  			</blockquote>
 	  		</li>
+	  		<li>
+	  			Connect to your Dropbox account. <button type="button" class="btn btn-default" ng-click="dbService.authenticatedNavigate('/import/')">
+        <div>{{(dbService.isAuthenticated() == true) ? "Currently connected to Dropbox" : "Connect to Dropbox (Not currently Connected)"}}</div>
+      </button> 
+	  		</li>
 	  		<li>Select the reactiontime.csv file you exported from R.
 					<br/><br/>
 					<input class="btn btn-default" type="file" on-read-file="showContent($content)" />

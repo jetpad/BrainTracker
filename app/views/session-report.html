@@ -1,23 +1,26 @@
-<div>
-
-    <p><strong>Page:</strong> {{tableParams.page()}}</p>
-    <p><strong>Count per page:</strong> {{tableParams.count()}}</p>
-      
+<div>   
     <table ng-table="tableParams" class="table">
         <tr ng-repeat="session in $data">
-            <td data-title="'Notes'" sortable="notes">
-                {{session.notes}}
+            <td data-title="'Notes'" sortable="'notes'" style="text-align: left">
+                {{session.notes}} 
             </td>
-            <td data-title="'latency (ms)'" sortable="'latency'">
+            <td data-title="'latency (ms)'" sortable="'latency'" style="text-align: right">
                 {{session.latency}}
             </td>
-            <td data-title="'trials'" sortable="'session.trials.length'">
-                {{session.trials.length}}
+            <td data-title="'Time'" sortable="'starttime'" style="text-align: left">
+                {{session.starttime | date:'medium'}}
             </td>
-            <td data-title="'Time'" sortable="'starttime'">
-                {{session.starttime | date:'medium'}} {{session.starttime}}
+            <td data-title="'% Wrong'" style="text-align: right" >
+                {{ ((session.errorcount / session.trials.length)*100) | number:0 }}%
+            </td>
+            <td data-title="'stdev'" style="text-align: right" >
+                {{ (session.trials.stdev()) | number:0 }}
+            </td>
+            <td data-title="'Trials'" >
+                <ng-sparkline ng-model="session.trials" width='80' height='20'></ng-sparkline>
             </td>
         </tr>
     </table>
-
 </div>
+
+

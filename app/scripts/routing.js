@@ -21,6 +21,9 @@ myApp.config(function($routeProvider, $locationProvider) {
         templateUrl: 'views/sessions-chart.html',
         controller: 'SessionsChartControl'
       }).      
+      when('/results', {
+        templateUrl: 'views/results.html',
+      }).      
       when('/testreport', {
         templateUrl: 'views/testreport.html',
       }).      

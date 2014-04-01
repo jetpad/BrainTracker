@@ -32,7 +32,16 @@
         </h3>
         </div>
 
-      <div ng-switch-when="go" ng-shortcut="'1|2|3|4|5|6|7|8|9'" ng-shortcut-action="test.clickedNumber()"> 
+      <div ng-switch-when="go">
+        <div ng-shortcut="'1'" ng-shortcut-action="test.clickedNumber('1')"></div>
+        <div ng-shortcut="'2'" ng-shortcut-action="test.clickedNumber('2')"></div>
+        <div ng-shortcut="'3'" ng-shortcut-action="test.clickedNumber('3')"></div>
+        <div ng-shortcut="'4'" ng-shortcut-action="test.clickedNumber('4')"></div>
+        <div ng-shortcut="'5'" ng-shortcut-action="test.clickedNumber('5')"></div>
+        <div ng-shortcut="'6'" ng-shortcut-action="test.clickedNumber('6')"></div>
+        <div ng-shortcut="'7'" ng-shortcut-action="test.clickedNumber('7')"></div>
+        <div ng-shortcut="'8'" ng-shortcut-action="test.clickedNumber('8')"></div>
+        <div ng-shortcut="'9'" ng-shortcut-action="test.clickedNumber('9')"></div>
         <h3>
           <div>&nbsp;</div>      
         </h3>
@@ -85,6 +94,8 @@
       <div ng-switch-when="session-complete" ng-shortcut="'5'" ng-shortcut-action="test.clickedNumber()">
         <h3>
           <div>session completed</div>
+          <div>&nbsp;</div>
+          <a href="#" editable-text="session.notes">{{ session.notes || 'Select to describe the session' }}</a>
         </h3>
         <h3>
           <div>Your average latency was {{test.getAverage() | number:0}} ms</div>

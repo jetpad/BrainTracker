@@ -1,12 +1,15 @@
 <div class="well">
-    <h2>About Brain Reaction Time Tracker</h2>
+    <h2>Reaction Time Tracker</h2>
     <p>
-	  	Version ?.?
-		<div>{{(dbService.isAuthenticated() == true) ? "Authenticated" : "NOT-Authenticated"}}</div>
-		<div>{{(dbService.isDatastoreOpen() == true) ? "Datastore Open" : "Datastore Closed"}}</div>
+	 	<div>{{(dbService.isAuthenticated() == true) ? "Authenticated with Dropbox" : "NOT-Authenticated"}}</div>
+		<div>{{(dbService.isDatastoreOpen() == true) ? "Dropbox Datastore is Open" : "Datastore Closed"}}</div>
 		<div>Sessions: {{dbService.sessionRecordCount()}}</div>
-		<div>Ready: {{dbService.ready()}}</div>
+		<div>Datastore Ready: {{dbService.ready()}}</div>
 
+		<div ng-controller="ExportControl">
+	        <ng-download-csv id="content1" 
+	            title="Export Trials" filename="trials.csv"></ng-download>
+		</div>
 	</p>
 </div>
 

@@ -176,6 +176,7 @@ myApp.factory('shortcuts', [
               element.trigger(event);
             };
           };
+
           if(isSet(scope, attrs.ngShortcutClick)){
             action = eventAction('click');
           }
@@ -197,6 +198,7 @@ myApp.factory('shortcuts', [
             var fn = $parse(attrs.ngShortcutAction);
             action = function(){
               scope.$apply(function(){
+//console.log("ngShortcutAction: ", attrs.ngShortcutAction);
                 fn(scope);
               });
             };

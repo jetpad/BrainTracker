@@ -4,6 +4,14 @@ myApp.controller("ReactionTimeCtrl", function($scope, ReactionTimeSession) {
 
 	$scope.test = new ReactionTimeSession;  
 
+	$scope.session = {
+    	notes: null // This should be initialized from the last session completed (or should it?)
+  	}; 
+
+  	$scope.test.saveNotes = function() {
+  		$scope.test.setNotes($scope.session.notes);
+  	}
+
 	$scope.test.hello = function(myname) {
 		var result; // = ocpuRPC.hello(myname);
 		result.then( function(result) {

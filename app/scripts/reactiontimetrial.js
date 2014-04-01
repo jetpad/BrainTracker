@@ -5,18 +5,25 @@ myApp.factory("ReactionTimeTrial", function($timeout) {
     return ReactionTimeTrial = function() {
         function ReactionTimeTrial(test) {
             var _this = this;
-            this.starttime = new Date; // will get replaced later if trial enters the "Go" phase ('too-fast/wrong-number' trials don't enter go phase)
+            this.starttime = now(); //new Date; // will get replaced later if trial enters the "Go" phase ('too-fast/wrong-number' trials don't enter go phase)
             this.minimumtime = 100;
             this.maximumtime = 2000;
             this.phase = "waiting";
             this.correction = false; 
             this.delay=1500;
+            this.warmup= false;
          
             $timeout.cancel(this.delayPromise);
             this.delayPromise = $timeout(function() {
                 return _this.enterGoPhase()
             }, this.delay)
 
+        }
+        ReactionTimeTrial.prototype.validTrial = function() {
+            if ((this.warmup == false) && (this.correction == false) && (this.correct == true))
+                return true
+            else
+                return false;
         }
         ReactionTimeTrial.prototype.enterGoPhase = function() {
 
@@ -28,15 +35,16 @@ myApp.factory("ReactionTimeTrial", function($timeout) {
             }
    
             this.phase = "go";
-            this.starttime = new Date
+            this.starttime = now(); //new Date
+            this.timestamp = new Date;
             return this.starttime;
         };  
         ReactionTimeTrial.prototype.reactionClick = function() {
             $timeout.cancel(this.delayPromise);
-            this.endtime = new Date;
+            this.endtime = now(); //new Date;
 
             // Time of the result
-            this.latency = this.endtime - this.starttime;
+            this.latency = Math.round(this.endtime - this.starttime);
             // It was a success and show the "result" (unless found otherwise)
             this.phase = "result";
        
@@ -69,11 +77,7 @@ myApp.factory("ReactionTimeTrial", function($timeout) {
                 default:
                     // Success!
                     console.log("Correct!");
-                    //console.log( "TRIAL: ", angular.toJson(this) );
                     this.correct = true;
-                    // Should this trial be included in the statistics? 
-                    if ((this.warmup == false) && (this.correction == false))
-                        this.include = true;
                     break;
             }
             return this.latency;        
@@ -81,7 +85,7 @@ myApp.factory("ReactionTimeTrial", function($timeout) {
        
         return ReactionTimeTrial
     }()
-}).factory("ReactionTimeSession", function(ReactionTimeTrial, $http, $location,dbService) {
+}).factory("ReactionTimeSession", function(ReactionTimeTrial, $http, $rootScope, $location,dbService) {
     var ReactionTimeSession;
     return ReactionTimeSession = function() {
         function ReactionTimeSession() {
@@ -93,6 +97,7 @@ myApp.factory("ReactionTimeTrial", function($timeout) {
             this.correctionTrial = false;
             this.warmup = false;
             this.maxTrials = 32;
+            this.notes = null;
         }
         ReactionTimeSession.prototype.start = function() {
             return this.nextTrial()
@@ -107,35 +112,17 @@ myApp.factory("ReactionTimeTrial", function($timeout) {
                 _nextTrial.problem = this.currentTrial.problem;
                 _nextTrial.correction = true;
             }
-            // Set warmup or correction trials to not be included 
-            if ((this.warmup == true) || (this.correctionTrial == true)) 
-                _nextTrial.include = false;
-            else
-                _nextTrial.include = true;
 
-            if (_nextTrial.include == false)
-                console.log("NOT INCLUDING the _nextTrial");
-            
             return this.currentTrial = _nextTrial;
         };
+
         // Called when the user clicks on a number
         ReactionTimeSession.prototype.clickedNumber = function(numberKey) {
-
-            if (this.currentTrial) 
-            {
-                // If numberKey is valid then user touched or clicked the number
-                if (numberKey)
-                {
-                    this.currentTrial.answer = numberKey;
-                }
-                else
-                    // Save the number pressed
-                    this.currentTrial.answer = String.fromCharCode(event.keyCode);
-           }
-   
+          
                // Check if we've completed enough trials
             if (this.getValidTrials() >= this.getMaxTrials()) {
-                // Save the trials
+                // This calls a function that was defined in ReactionTimeCtrl to get the notes out of the scope.
+                this.saveNotes();
                 this.saveSession();
                 console.log("test complete");
                 $location.path("/testcomplete");
@@ -149,6 +136,9 @@ myApp.factory("ReactionTimeTrial", function($timeout) {
                     this.reactionClick();
                     break;
                 case"go":
+                    if (this.currentTrial)      
+                        if (numberKey) // If numberKey is valid then user touched or clicked the number
+                            this.currentTrial.answer = numberKey;
                    this.reactionClick();
                    break;
                 default:
@@ -170,7 +160,6 @@ myApp.factory("ReactionTimeTrial", function($timeout) {
                 case "too-slow":
                 case "wrong-number":
                     this.correctionTrial = true;
-                    this.currentTrial.include = false;
                     break;
 
                 case "result":
@@ -178,7 +167,7 @@ myApp.factory("ReactionTimeTrial", function($timeout) {
                     // Did we get it correct?
                     if (this.currentTrial.correct == true) {
 
-                       console.log(" Including:true  correction:", this.correctionTrial );
+                      // console.log(" Including:true  correction:", this.correctionTrial );
 
                         // This was correct so turn off trial correction
                         this.correctionTrial = false;
@@ -186,11 +175,11 @@ myApp.factory("ReactionTimeTrial", function($timeout) {
                         // Remove the promise
                         this.currentTrial.delayPromise = null;  
                     
-                        console.log("Trials(",this.trials.length,") : ", JSON.stringify(this.trials));
+                     //   console.log("Trials(",this.trials.length,") : ", JSON.stringify(this.trials));
                     }
                     else     
                     {
-                        console.log(" Excluding the trial");
+                      //  console.log(" Excluding the trial");
                         // We need to correct it
                         this.correctionTrial = true;
                     }   
@@ -209,27 +198,25 @@ myApp.factory("ReactionTimeTrial", function($timeout) {
 
             return this.currentTrial.phase;
         };
-        // Get the average time of all the VALID trials
+
         ReactionTimeSession.prototype.getAverage = function() {
-            var total, trial, _i, _len, _ref;
-            total = 0;
-            var includedTrials = 0;
-            _ref = this.trials;
-            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-                trial = _ref[_i];
-                if (trial.include == true) {
-                    total += trial.latency;
-                    includedTrials++;
+            var trialCount = 0;
+            var total = 0;
+
+            for(var i = 0; i < this.trials.length; i++)
+                if (this.trials[i].validTrial()) {
+                    total += this.trials[i].latency;
+                    trialCount = trialCount + 1;
                 }
-            }
-            return total / includedTrials || 0
+
+            return total / trialCount || 0;
         };
         // Loop through the list and only addup the valid trials
         ReactionTimeSession.prototype.getValidTrials = function() {            
             var trialCount = 0;
 
             for(var i = 0; i < this.trials.length; i++)
-                if ((this.trials[i].include == true) && (this.trials[i].correction == false))
+                if (this.trials[i].validTrial())
                     trialCount = trialCount + 1;
             return trialCount;
         };
@@ -267,7 +254,7 @@ myApp.factory("ReactionTimeTrial", function($timeout) {
             // Cancels the last *valid* trial
             // Start at end and pop until you reach beginning or a valid trial
             for(var i = this.trials.length-1; i >= 0; i--) {
-                if ((this.trials[i].include == true) && (this.trials[i].correction == false)) {
+                if (this.trials[i].validTrial()) {
                     // Found a valid one so pop it off and stop
                     this.trials.pop();
                     break;
@@ -289,6 +276,14 @@ myApp.factory("ReactionTimeTrial", function($timeout) {
             return this.message;
         };
 
+        ReactionTimeSession.prototype.getNotes = function() {
+            return this.notes;
+        };
+        ReactionTimeSession.prototype.setNotes = function(notes) {
+            console.log("setNotes: ", notes );
+            this.notes = notes;
+        };
+
         ReactionTimeSession.prototype.saveSession = function() { 
             var Vector = gauss.Vector;
             var session = {};
@@ -302,31 +297,23 @@ myApp.factory("ReactionTimeTrial", function($timeout) {
                 // Add this trial to the current session
                 var trialObject = {};
                 var trial = trials[i];
-                trialObject.p = trial.problem;    // problem
-                trialObject.a = trial.answer;     // answer
-                trialObject.l = Math.round(trial.latency); // latency
-                if (trial.include == true)      // include
-                    trialObject.n = true;
-                if (trial.correct == true)      // correct
-                    trialObject.c = true;
-                if (trial.warmup == true)       // warmup
-                    trialObject.w = true;
-                if (trial.correction == true)   // correction
-                    trialObject.x = true;      
+                trialObject.problem = trial.problem;    // problem
+                trialObject.answer = trial.answer;     // answer
+                trialObject.latency    = Math.round(trial.latency); // latency
+                trialObject.include    = ((trial.correction == false) && (trial.warmup == false));      // was this trial potentially include(able) in the group of correct 32 trials?
+                trialObject.correct    = trial.correct;      // correct
+                trialObject.warmup     = trial.warmup; 
+                trialObject.correction = trial.correction;
                 session.trials.push(trialObject);
             }
             
-            session.notes = "User needs to enter this somewhere."
-            session.starttime = new Date(trials[0].starttime);
-            session.endtime  = new Date(trials[trials.length-1].endtime);
+            session.notes = this.notes;
+            session.starttime = new Date(trials[0].timestamp); //starttime);
+            session.endtime  = new Date(trials[trials.length-1].timestamp); //endtime);
             session.duration = Math.round((session.endtime - session.starttime)/1000);
-            session.minlatency = 150;
-            session.maxlatency = 3000;
-            session.testtype = "A";
-            session.testversion = 1;
-            session.delay = Math.round( trials[0].delay );
-
-            console.log("saveSession:", session );
+            session.testtype = "A"; 
+         
+            console.log("saveSession: ", session );
             this.initialize();
             
             return dbService.addSession( session );

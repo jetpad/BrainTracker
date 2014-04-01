@@ -1,10 +1,10 @@
 'use strict';
 
-myApp.controller( "SessionsChartControl", function($scope, $rootScope, $filter, $timeout, $q, $http,$location, 
+myApp.controller( "SessionsChartControl", function($scope, $rootScope, $filter, $window, $timeout, $q, $http,$location, 
 	safeApply, ngTableParams, dbService) {
 
     var self = this;
- 
+
     /////////////////////////////////////////////////////////////////
     this.getData = function() {
 
@@ -18,16 +18,18 @@ myApp.controller( "SessionsChartControl", function($scope, $rootScope, $filter, 
        //console.log("time: ", sessions[i].starttime.getTime()/1000 );
         data.push({
           x: sessions[i].starttime.getTime()/1000,
-          y: sessions[i].latency
+          y: sessions[i].latency,
+          r: sessions[i].trials.stdev() / 8
         });
       }
 
       return data;
     };
     /////////////////////////////////////////////////////////////////
+
     var graph = new Rickshaw.Graph( {
       element: document.querySelector("#chart"),
-      width: 800,
+      width:  800,
       height: 400,
       renderer: 'scatterplot',
       stroke: true,
@@ -35,8 +37,8 @@ myApp.controller( "SessionsChartControl", function($scope, $rootScope, $filter, 
       preserve: true,
       series: [ {
         name: '',
+        className: 'scatterplot-circle',
         data: this.getData(), 
-        color: 'steelblue'
       } ]
       
     } );
@@ -60,37 +62,51 @@ myApp.controller( "SessionsChartControl", function($scope, $rootScope, $filter, 
         formatter: function(series,x,y) {
           var date = '<span class="date">' + $filter('date')( x * 1000, 'medium') + '</span>';
           var swatch = '<span class="detail_swatch" style="background-color: ' + series.color + '"></span>';
-          var content = swatch + series.name + " " + parseInt(y) + ' (ms)<br>' + date;
+          var content = swatch + series.name + "latency: " + parseInt(y) + ' (ms)<br>' + date;
           return content;
         }
     } );
 
-    var preview = new Rickshaw.Graph.RangeSlider.Preview({
+    //////////////////////////////////////////////////
+    var refreshChart = function() {
+
+      if (document.querySelector("#chart") == null)
+        return;
+
+      console.log("refreshChart");
+/*
+      var element = document.querySelector("#chart");
+      angular.forEach( element.children, function( child, key ) {
+        child.remove();
+      });
+*/
+      var width = window.innerWidth - 40 - document.querySelector("#chart").offsetLeft * 2;
+      var frameHandleThickness = 20;
+
+      var preview = new Rickshaw.Graph.RangeSlider.Preview({
         graph: graph,
-        padding: { left: 40 },
+        width: width + frameHandleThickness * 2,
+        frameHandleThickness: frameHandleThickness,
         renderer: 'scatterplot',
         element: document.querySelector('#preview')
-    });
+      });
+ 
+      graph.configure({
+        width: width,
+        height: window.innerHeight - document.querySelector("#chart").offsetTop * 2,
+      });
 
-    var ticksTreatment = 'glow';
-    var previewXAxis = new Rickshaw.Graph.Axis.Time({
-      graph: preview.previews[0],
-      timeFixture: new Rickshaw.Fixtures.Time.Local(),
-      ticksTreatment: ticksTreatment
-    });
+      graph.configure({renderer:'scatterplot'});
+      graph.render();
+    };
+
+    var w = angular.element($window);
+    //w.bind( "resize", refreshChart );
     
-    previewXAxis.render();
-
-    graph.configure({renderer:'scatterplot'});
-    
-    graph.render();
-
     ////////////////////////////////////////////////////////////////
     $scope.$on("sessionDataChanged", function() {
         console.log("Updating Chart");
         graph.series[0].data = self.getData();
-        xAxis.render();
-        yAxis.render();
-        graph.render();
+        refreshChart();
     });
 });

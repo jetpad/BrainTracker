@@ -20,6 +20,7 @@ module.exports = function(config) {
       'app/bower_components/gauss/gauss.min.js',
       'app/bower_components/angular-bootstrap/ui-bootstrap-tpls.js',
       'app/bower_components/dropbox-datastores-js/lib/dropbox-datastores-1.0.0.js',
+      'app/bower_components/angular-xeditable/dist/js/xeditable.js',
       'app/scripts/*.js',
       'app/scripts/**/*.js',
       'test/mock/**/*.js',

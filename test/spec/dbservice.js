@@ -1,7 +1,7 @@
 'use strict';
 
 var key = 'dropbox-auth:default:cHKvNCKVzU7Jmnyaj1InU8TBCOc';
-var value = '{"key":"46tjf8x15q98xic","token":"m1RVM7yAO28AAAAAAAAAAZxH1z9cXzgHfu64dmbLHxGQLd2kgKb9FajJ6xNii55Y","uid":"1407454"}';
+var value = '{"key":"46tjf8x15q98xic","token":"o81hK4Urfk0AAAAAAAAAAbjuTs-nvSc7lyY_dFIF1id8ERA9DP3kcna3ZhafX1CG","uid":"1407454"}';
 
 var db = null;
 var dsid = null;
@@ -66,7 +66,7 @@ describe('Services: ', function () {
 			        	var dsitem = datastorelist[i];
 			        	var id = dsitem.getId();
 			        	
-			        	if (id != "defaultXXXX") {
+			        	if (id != "default") {
 			        		var promise= [];
 			        		promise[i] = db.deleteDatastore(id);
 			        		promise[i].then(function() {

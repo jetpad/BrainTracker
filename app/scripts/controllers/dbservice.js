@@ -1,12 +1,12 @@
 'use strict';
 
-// .include     - To be used in calculating the statistics of a session
-//              - NOT-warmup, NOT-correction, correct and counted toward the max trials. 
+// .include     - To be POTENTIALLY used in calculating the statistics of a session
+//              - NOT-warmup, NOT-correction (but not necessarily correct). Only counted toward the max trials if also correct. 
 // .correction  - Trials after a incorrect answer are flagged with this until the next problem
 // .warmup      - practice trials not included with statistic calculations (because not saved to the datastore)
 // .correct     - user answered with the same number as the problem for the trial. 
 
-myApp.service("dbService", function($location,$q,safeApply,$rootScope, $timeout) {
+myApp.service("dbService", function($location,$q,safeApply, $filter, $rootScope, $timeout) {
 
 	var client;
     var datastore = null;
@@ -122,7 +122,7 @@ myApp.service("dbService", function($location,$q,safeApply,$rootScope, $timeout)
             }
         }
 
-        var start = new Date().getTime();
+        var start = now(); //new Date().getTime();
        
         datastoreManager.openDefaultDatastore( function(error, _datastore) {
             safeApply($rootScope, function() {
@@ -132,8 +132,8 @@ myApp.service("dbService", function($location,$q,safeApply,$rootScope, $timeout)
                 }
                 else {
                     console.log("successfully opened default datastore");
-                    var end = new Date().getTime();
-                    console.log("Time to get datastore: ", (end-start), " (ms)");
+                    var end = now(); ///new Date().getTime();
+                    console.log("Time to get datastore: ", Math.round(end-start), " (ms)");
                     
                     datastore = _datastore;
                     self.openTables();
@@ -190,23 +190,56 @@ myApp.service("dbService", function($location,$q,safeApply,$rootScope, $timeout)
   	this.openTables = function() {
 		sessionTable = datastore.getTable('session');
 
-        var start = new Date().getTime();
+        var start = now();// new Date().getTime();
         var sessions = sessionTable.query();
-        var end = new Date().getTime();
-        console.log("sessions elapsed time: ", end-start);
+        var end = now();// new Date().getTime();
+        console.log("sessions query elapsed time: ", Math.round(end-start));
+        
         sessionRecords = self.sessionToObjectArray(sessions) ;
+        
+        start = now();//new Date().getTime();
+        this.sortArrayByStarttime( sessionRecords );
+        end = now();//new Date().getTime();
+        console.log("sessions sort elapsed time: ", Math.round(end-start));
+        
 	    $rootScope.$broadcast("sessionDataChanged");
 
 		self.subscribeRecordsChanged( function(records) {
 			console.log('a session record has changed: ', records.length );
 
+            // Using the record id(s), remove any of the existing records from the sessionRecords array
+            for (var s=0;s<records.length;s++) 
+                for(var i=sessionRecords.length-1; i>=0; i--)
+                    if (sessionRecords[i].id == records[s].getId())
+                        sessionRecords.splice(i, 1);
+
             // insert the session into $scope.sessions 
             sessionRecords = sessionRecords.concat( self.sessionToObjectArray(records) );
+
+            // re-sort the list of records
+            var start = now();//new Date().getTime();
+            self.sortArrayByStarttime( sessionRecords );
+            var end = now();//new Date().getTime();
+            console.log("sessions sort elapsed time: ", end-start);
 
             // and signal to the report and chart that there are new records
             $rootScope.$broadcast("sessionDataChanged");
 		}, 'session' );
 	}
+    /////////////////////////////////////////////////////////////////////
+    this.sortArrayByStarttime = function( arr ) {
+        arr.sort(function (a, b) {
+                // Turn your strings into dates, and then subtract them
+                // to get a value that is either negative, positive, or zero.
+                return new Date(a.starttime) - new Date(b.starttime);
+                /*
+                var c =  new Date(b.starttime) - new Date(a.starttime);
+                console.log("c: ", c );
+                return c;
+                */
+            }
+        );
+    }
     /////////////////////////////////////////////////////////////////////
     // True when the database objects are fully initialized
     this.ready = function() {
@@ -255,26 +288,37 @@ myApp.service("dbService", function($location,$q,safeApply,$rootScope, $timeout)
         datastore.recordsChanged.addListener(fn);
         return fn;
     }
+    ////////////////////////////////////////////////////////////////////////////
+    this.updateSessionField = function( id, field, value ) {
+
+        if (sessionTable) {
+            if (Dropbox.Datastore.Record.isValidId(id)) {
+                var sessionRecord = sessionTable.get(id)
+                sessionRecord.set( field, value );
+            }
+        }
+    }
     ////////////////////////////////////////////////////////////////////////////  
     // Converts the session table from an array of Dropbox datastore records (returned by a query) into
     // an array of objects containing the fields from the records. 
     this.sessionToObjectArray = function(sessions) {
         var Vector = gauss.Vector;
         var oArray = [];
-        var start = new Date().getTime();
-        for(var s=0;s<sessions.length;s++) {
+        var start = now();//new Date().getTime();
+        for (var s=0;s<sessions.length;s++) {
             var session = sessions[s].getFields();
-            var jsontrials = session.trials.toArray();
-            var trials = new Vector();
-            for(var i=0;i<jsontrials.length;i++){
-                trials.push(JSON.parse(jsontrials[i]));
-            }
+            var trials = Vector( session.trials
+                .split(',')
+                .map(function(item) { 
+                    return parseInt(item, 10); 
+                }) 
+            );
             session.trials = trials;
+            session.id = sessions[s].getId();
             oArray.push(session);
         }
-        var end = new Date().getTime();
-        console.log("convert to array elapsed time: ", end-start);
-       
+        var end = now();//new Date().getTime();
+        console.log("convert to array elapsed time: ", Math.round(end-start));
         return oArray;
     }
     ////////////////////////////////////////////////////////////////////////////  
@@ -295,7 +339,7 @@ myApp.service("dbService", function($location,$q,safeApply,$rootScope, $timeout)
 			$timeout(function() {
             	// Process the element at "index"
  				console.log("Processing a session:", index );
-              	self.addSession(sessions[index]);
+              	self.addSession(sessions[index], index );
                 deferred.notify({ idx: index, max: sessions.length})
 
 				index++;
@@ -313,65 +357,67 @@ myApp.service("dbService", function($location,$q,safeApply,$rootScope, $timeout)
 		enQueueNext();
 		return deferred.promise;
 	}
-	//////////////////////////////////////////////////////////////////////////////
-	this.addTrials = function(sessionId, trials) {
-
-		for(var i=0; i < trials.length; i++){
-			self.addTrial(sessionId, trials[i]);
-		}
-
-	}
-	/////////////////////////////////////////////////////////////////////
-    this.addTrial = function( sessionId, trial ) {
-  
-    	var trialRecord = trialTable.insert({
-    			sessionid: 		sessionId,
-    			problem: 		trial.problem,
-    			answer: 		trial.answer,
-    			latency: 		trial.latency,
-    			latencyptile: 	trial.latencyptile,
-    			include: 		trial.include,
-    			correct: 		trial.correct,
-    			warmup: 		trial.warmup,
-    			correction: 	trial.correction
-    		}); 
-
-    	return trialRecord;
-  }
     /////////////////////////////////////////////////////////////////////
-    this.addSession = function( session ) {
+    this.errorPercent = function( session ) {
+        // 1st time Chances increases by one every time the user fails a first chance
+        var chances = session.trials.find({include: true}).length;
+        var correct = session.trials.find({correct: true, include: true}).length;
+        var errors = Math.round( chances - correct );
+        var percent = Math.round( (errors / chances) * 100 );
 
-    	console.log("session:", session );
+console.log( "chances:", chances, " correct:", correct, " errors:", errors, " percent:", percent );
+
+        return percent;
+    }
+    /////////////////////////////////////////////////////////////////////
+    this.addSession = function( session, importIndex ) {
+
+        // is there an importIndex parameter?
+        var importSession = typeof importIndex !== 'undefined' ? true : false;
 
         // Calculate the mean latency
         session.latency = Math.round( session.trials
-            .find( {n: true} )
-            .map(function(trial) { return trial.l })
+            .find( {include: true, correct: true} )
+            .map(function(trial) { return trial.latency })
             .mean());
 
-console.log("latency: ", session.latency );
+        // Calculate the error percent
+        session.errorpercent = this.errorPercent( session );
 
-        // convert trial array objects to strings
         var trials = [];
+        // Just save the latency for the "included" trials
         for(var i=0;i < session.trials.length; i++)
-            trials.push(JSON.stringify(session.trials[i]));
+            if ((session.trials[i].include == true) && (session.trials[i].correct == true))
+                trials.push(session.trials[i].latency);
+
+      //  console.log("session:", session );
 
         if (!isNaN(session.latency)) { // Only add non-warmup trials
-           	var sessionRecord = sessionTable.insert({
-                        notes: 			session.notes,
+
+            var fields = {
                         starttime: 		session.starttime,
                         endtime: 		session.endtime,
                         latency:        session.latency,
-                        minlatency: 	session.minlatency,
-                        maxlatency: 	session.maxlatency,
+                        errorpercent:   session.errorpercent,
                         testtype: 		session.testtype,
-                        testversion: 	session.testversion,
-                        delay: 		    session.delay,
                         duration:       session.duration,
-                        trials:         trials
-                    });
+                        trials:         trials.join(",")
+                    }
 
-        	return sessionRecord;
+            // If the session notes are not null then save them.
+            if (session.notes)
+                fields.notes = session.notes;
+
+            if (importSession == true) {
+                // If user is re-importing records, it first deletes one that exists and then imports the new one. 
+                var sessionRecord = sessionTable.getOrInsert( "csv_import_" + importIndex, fields );
+                sessionRecord.deleteRecord();
+                sessionRecord = sessionTable.getOrInsert( "csv_import_" + importIndex, fields );
+            }
+            else
+                var sessionRecord = sessionTable.insert( fields );
+
+         	return sessionRecord;
         }
         else
             return null;
@@ -513,6 +559,54 @@ console.log("latency: ", session.latency );
     	// Return the parsed data.
     	return( arrData );
     }
+
+    ////////////////////////////////////////////////////////////////////////////  
+    this.stringifyCell = function(data) {
+        var txtDelim = '"';
+        if (typeof data === 'string') {
+            data = data.replace(/"/g, '""'); // Escape double qoutes
+            data = txtDelim + data + txtDelim;
+            return data;
+        }
+        if (typeof data === 'boolean') {
+            return data ? 'TRUE' : 'FALSE';
+        }
+        return data;
+    };
+
+    /////////////////////////////////////////////////////////
+    this.exportToCSV = function() {
+        // Make sure the sessions are sorted by time in ascending order
+
+        // CSV column headers
+        var csvContent = 
+        ['session', 'starttime','endtime','duration','meanlatency','errorpercent','testtype','notes'];
+        csvContent += '\r\n';
+        // Loop through the sessions in time order
+        var sessions = this.sessions();
+        if (sessions) {
+            for(var s=0; s < sessions.length; s++) {
+                var session = sessions[s];
+    
+                var row = [];
+                row.push(self.stringifyCell(s+1)); // Session #
+                row.push(self.stringifyCell( $filter('date')( session.starttime, 'yyyy-MM-dd HH:mm:ss') ));  
+                row.push(self.stringifyCell( $filter('date')( session.endtime,   'yyyy-MM-dd HH:mm:ss') ));
+                row.push(self.stringifyCell(session.duration));
+                row.push(self.stringifyCell(session.latency));
+                row.push(self.stringifyCell(session.errorpercent));
+                row.push(self.stringifyCell(session.testtype));
+                row.push(self.stringifyCell(session.notes));
+                row.push(session.trials);
+
+                csvContent += row.join(',');
+                csvContent += '\r\n';
+           }
+        }
+
+        return csvContent;
+    }
+   
     ////////////////////////////////////////////////////////////////////////////  
 	this.parseTrialstoSessions = function(rawTrials) {
 
@@ -522,7 +616,16 @@ console.log("latency: ", session.latency );
 		var when,notes;
 		var trial={};
         var Vector = gauss.Vector;
-		
+/*
+Removed this cause it probably needs to be sorted by the trial index next...
+        // Make sure it is sorted in accending order by the [1] column
+        rawTrials.sort(function (a, b) {
+            // Turn your strings into dates, and then subtract them
+            // to get a value that is either negative, positive, or zero.
+            return new Date(this.parseDateFromR(a[1])) - new Date(this.parseDateFromR(b[1]));
+        }
+*/
+
 		// Dump some of it
    // 	for(var i=0; i<20; i++)
    //		console.log(trials[i]);
@@ -544,11 +647,13 @@ console.log("latency: ", session.latency );
 
     			// Start a new Session
     			session={};
-    			session.notes = notes.substr(17); // Remove the leading date from the string
+    			session.notes = notes.substr(17).trim(); // Remove the leading date from the string
+                if (session.notes.length == 0)
+                    session.notes = "-blank-";
     			session.starttime = this.parseDateFromR(trialArr[1]);
     			session.minlatency = 150;
     			session.maxlatency = 3000;
-    			session.testtype = "SETH";
+    			session.testtype = "S"; // For "Seth"
     			session.testversion = 1;
     			session.delay = Math.round(trialArr[4]);
     			session.trials = new Vector();
@@ -559,21 +664,15 @@ console.log("latency: ", session.latency );
             session.duration = Math.round(((session.endtime - session.starttime )/1000));
 			// Add this trial to the current session
 			trial = {};
-			//trial.i     = trialArr[3];           // index
-            trial.p     = trialArr[5];               // problem
-            trial.a     = trialArr[8];              // answer
-            trial.l     = Math.round(trialArr[6]);   // latency
-            if (trialArr[10] == "TRUE")              // include
-                trial.n     = true;           
-            if (trialArr[9]  == "TRUE")              // correct
-                trial.c     = true; 
-            if (trialArr[11] == "warmup")            // warmup
-                trial.w      = true;
-            if (trialArr[11] == "correction trial")  // correction
-                trial.x  = true;
-   
-   //         session.trials.push(JSON.stringify(trial));
-              session.trials.push(trial);
+			//trial.i     = trialArr[3];                   // index
+            trial.problem     = trialArr[5];               // problem
+            trial.answer      = trialArr[8];               // answer
+            trial.latency     = Math.round(trialArr[6]);   // latency
+            trial.include     = (trialArr[10] == "TRUE") ? true : false;    // include
+            trial.correct     = (trialArr[9]  == "TRUE") ? true : false;    // correct
+            trial.warmup      = (trialArr[11] == "warmup") ? true : false;  // warmup
+            trial.correction  = (trialArr[11] == "correction trial")  ? true : false;  // correction
+            session.trials.push(trial);
             
     		// Make sure "when" column is in ascending order
     		/*
