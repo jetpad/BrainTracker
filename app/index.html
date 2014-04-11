@@ -6,7 +6,8 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Brain Reaction Time Tracker</title>
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <title>Reaction Time Tracker</title>
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width">
 
@@ -25,8 +26,7 @@
     <link rel="stylesheet" href="styles/detail.css">
     <link rel="stylesheet" href="styles/legend.css">
     <link rel="stylesheet" href="styles/rickshaw.css">
-    
-    <!-- endbuild -->
+     <!-- endbuild -->
     <base href="/">
   </head>
 
@@ -53,8 +53,8 @@
       <div class="collapse navbar-collapse" ng-class="!navCollapsed && 'in'">
       
         <ul class="nav navbar-nav">
-          <li><a href="#/about">About</a></li>
-          <li><a href="#/contact">Contact</a></li>
+          <li><a href="#about">About</a></li>
+          <li><a href="#contact">Contact</a></li>
         </ul>
         
         <ul class="nav navbar-nav navbar-right">
@@ -65,7 +65,10 @@
       </div><!-- /.navbar-collapse -->
     </nav>
     <div class="container theme-showcase jumbotron">
-      <div ng-view></div>
+      <alert ng-repeat="alert in alerts" type="alert.type" close="closeAlert($index)">
+      <span ng-bind-html="alert.msg"></span>
+      </alert>
+      <div ui-view></div>
     </div>
 
 <script>
@@ -88,7 +91,8 @@
     <script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
     <script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
     <script src="bower_components/angular-touch/angular-touch.js"></script>
-    <script src="bower_components/angular-route/angular-route.js"></script>
+    <script src="bower_components/angular-ui-router/release/angular-ui-router.js"></script>
+    <script src="bower_components/angular-sanitize/angular-sanitize.js"></script>
     <script src="bower_components/ng-table/ng-table.js"></script>
     <script src="bower_components/underscore/underscore.js"></script>
     <script src="bower_components/angular-gestures/gestures.js"></script>
@@ -96,18 +100,33 @@
     <script src="bower_components/gauss/gauss.min.js"></script>
     <script src="bower_components/angular-xeditable/dist/js/xeditable.js"></script>
     <!-- endbuild -->
+    
+    <!-- these don't like to be minified -->
     <script src="bower_components/dropbox-datastores-js/lib/dropbox-datastores-1.0.0.js"></script> 
-    <script src="bower_components/rickshaw/rickshaw.min.js"></script>   
-    <!-- build:js({.tmp,app}) scripts/scripts.js -->
+  <!--  
+    <script src="bower_components/rickshaw/rickshaw.js"></script>  
+  -->
+    <script src="scripts/Rickshaw/Rickshaw.js"></script>  
+    <script src="scripts/Rickshaw/Rickshaw.Graph.Axis.Y.js"></script> 
+    <script src="scripts/Rickshaw/Rickshaw.Graph.Axis.Y.Scaled.js"></script> 
+    <script src="scripts/Rickshaw/Rickshaw.Graph.RangeSlider.js"></script> 
+    <script src="scripts/Rickshaw/Rickshaw.Graph.RangeSlider.Preview.js"></script> 
+
+ <!-- build:js({.tmp,app}) scripts/scripts.js -->
+
     <script src="scripts/app.js"></script>
     <script src="scripts/routing.js"></script>
     <script src="scripts/controllers/dbservice.js"></script>
     <script src="scripts/controllers/main.js"></script>    
     <script src="scripts/sparkline.js"></script>   
+
+    <script src="scripts/directives/sessionschart.js"></script>    
+
     <script src="scripts/controllers/sessionsreportcontrol.js"></script>
     <script src="scripts/controllers/sessionschartcontrol.js"></script>    
     <script src="scripts/controllers/resultscontrol.js"></script>
     <script src="scripts/controllers/exportcontrol.js"></script>
+    <script src="scripts/controllers/sessioncontrol.js"></script>
     <script src="scripts/reactiontimetrial.js"></script>
     <script src="scripts/controllers/reactiontime.js"></script>
     <script src="scripts/keyboardshortcuts.js"></script>

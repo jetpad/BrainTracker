@@ -25,7 +25,7 @@ module.exports = function (grunt) {
       dist: 'dist'
     },
 
-    // Watches files for changes and runs tasks based on the changed files
+    // Watches file changes and runs tasks based on the changed files
     watch: {
       js: {
         files: ['<%= yeoman.app %>/scripts/{,*/}*.js'],
@@ -257,6 +257,7 @@ module.exports = function (grunt) {
             '*.php',
             'views/{,*/}*.html',
             'bower_components/**/*',
+            'scripts/{,*/}*.js',
             'images/{,*/}*.{webp}',
             'fonts/*'
           ]

@@ -1,0 +1,28 @@
+<div ng-controller="SessionsReportControl">   
+	<table ng-table="tableParams" class="table">
+	    <tr ng-repeat="session in $data">
+	        <td data-title="'Notes'" sortable="'notes'" style="text-align: left">
+	        	<a href="#" editable-text="session.notes" onaftersave="saveNotes($data,session.id)">{{ session.notes || 'Select to describe the session' }}</a>
+	        </td>
+	        <td data-title="'Latency (ms)'" sortable="'latency'" style="text-align: right">
+	            {{session.latency}}
+	        </td>
+	        <td data-title="'Duration (s)'" sortable="'duration'" style="text-align: right">
+	            {{session.duration}}
+	        </td>
+	        <td data-title="'Time'" sortable="'starttime'" style="text-align: left">
+	            {{session.starttime | date:'medium'}}
+	        </td>
+	        <td data-title="'% Wrong'" style="text-align: right" >
+	            {{session.errorpercent }}%
+	        </td>
+	        <td data-title="'stdev'" style="text-align: right" >
+	            {{ (session.trials.stdev()) | number:0 }}
+	        </td>		           
+	        <td data-title="'Trials'" >
+	            <!--<a href="#session/{{session.index}}"><ng-sparkline ng-model="session.trials" width='80' height='20'/></a> -->
+	            <ng-sparkline ng-model="session.trials" width='80' height='20'/>
+	        </td>
+	    </tr>
+	</table>
+</div>

@@ -1,0 +1,17 @@
+<div  ng-controller="SessionController">
+  <div class="reaction-session">
+      <div>
+        <h2>Session Index: {{session.index}}</h2>
+        <h3>
+          <div>{{session.notes}}</div>
+          
+        </h3>
+        <h3>
+          <div align='center'>
+              <ng-sparkline id='sparkline' ng-model="session.trials" width='400' height='200' />        
+          </div>
+        </h3>
+      </div>
+    </div>
+  </div>
+</div>

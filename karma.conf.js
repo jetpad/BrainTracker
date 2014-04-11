@@ -15,6 +15,7 @@ module.exports = function(config) {
       'app/bower_components/angular-gestures/gestures.js',
       'app/bower_components/angular-mocks/angular-mocks.js',
       'app/bower_components/angular-route/angular-route.js',
+      'app/bower_components/angular-ui-router/release/angular-ui-router.js',
       'app/bower_components/jquery/dist/jquery.js',
       'app/bower_components/d3/d3.js',
       'app/bower_components/gauss/gauss.min.js',
@@ -22,7 +23,9 @@ module.exports = function(config) {
       'app/bower_components/dropbox-datastores-js/lib/dropbox-datastores-1.0.0.js',
       'app/bower_components/angular-xeditable/dist/js/xeditable.js',
       'app/scripts/*.js',
-      'app/scripts/**/*.js',
+      'app/scripts/*.js',
+      'app/scripts/controllers/*.js',
+      'app/scripts/directives/*.js',
       'test/mock/**/*.js',
       'test/spec/**/*.js',
 
